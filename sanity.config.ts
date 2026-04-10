@@ -8,6 +8,7 @@ import { projectId, dataset } from '@/sanity/env'
 export default defineConfig({
   name: 'rede-digitalt',
   title: 'Rede Digitalt',
+  basePath: '/studio',
 
   projectId,
   dataset,
