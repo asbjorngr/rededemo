@@ -93,6 +93,21 @@ export const article = defineType({
       type: 'number',
     }),
     defineField({
+      name: 'scrollyTheme',
+      title: 'Scrollytelling-tema',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Varm / intim (gylne, mørke toner)', value: 'warm' },
+          { title: 'Dokumentarisk / rolig (grønn/teal)', value: 'documentary' },
+          { title: 'Leken / energisk (lilla)', value: 'playful' },
+        ],
+        layout: 'radio',
+      },
+      hidden: ({ parent }) => parent?.type !== 'scrollytelling',
+      description: 'Velg fargetema for scrollytelling-opplevelsen',
+    }),
+    defineField({
       name: 'sections',
       title: 'Seksjoner',
       type: 'array',
