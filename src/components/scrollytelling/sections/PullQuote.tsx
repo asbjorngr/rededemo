@@ -16,91 +16,76 @@ interface PullQuoteProps {
 export function PullQuote({ data }: PullQuoteProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const quoteRef = useRef<HTMLQuoteElement>(null)
-  const frameRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const mm = gsap.matchMedia()
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      // Quote text — scale in with blur
       if (quoteRef.current) {
-        gsap.from(quoteRef.current, {
-          scale: 0.92,
-          opacity: 0,
-          filter: 'blur(6px)',
-          duration: 1.4,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 60%',
-            toggleActions: 'play none none reverse',
-          },
-        })
-      }
-
-      // Decorative frame — draw in
-      if (frameRef.current) {
-        gsap.from(frameRef.current, {
-          opacity: 0,
-          scale: 0.96,
-          duration: 1.2,
-          delay: 0.2,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 60%',
-            toggleActions: 'play none none reverse',
-          },
-        })
+        // Each word fades in sequentially for drama
+        const words = quoteRef.current.querySelectorAll('[data-word]')
+        if (words.length > 0) {
+          gsap.from(words, {
+            opacity: 0.15,
+            duration: 0.4,
+            stagger: 0.03,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 50%',
+              toggleActions: 'play none none reverse',
+            },
+          })
+        } else {
+          gsap.from(quoteRef.current, {
+            scale: 0.94,
+            opacity: 0,
+            duration: 1.4,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 50%',
+              toggleActions: 'play none none reverse',
+            },
+          })
+        }
       }
     })
 
     return () => mm.revert()
   }, [])
 
-  // Use TOBB teal as accent background, or custom
-  const bgColor = data.backgroundColor || '#487A7B'
+  // Split quote into words for staggered animation
+  const words = data.quote?.split(/\s+/) || []
 
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-screen items-center justify-center px-6 py-24"
-      style={{ backgroundColor: bgColor }}
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-navy px-6 py-24"
     >
-      {/* Decorative frame — thin border with rounded corners */}
-      <div
-        ref={frameRef}
-        className="absolute inset-6 rounded-[4px] border border-current opacity-20 lg:inset-10"
-        style={{ color: data.backgroundColor ? 'white' : '#003865' }}
-      />
-
-      {/* Inner decorative corners */}
-      <div className="absolute inset-8 lg:inset-12">
-        {/* Top-left corner */}
-        <div className="absolute left-0 top-0 h-6 w-6 border-l border-t opacity-30" style={{ borderColor: data.backgroundColor ? 'white' : '#003865' }} />
-        {/* Top-right corner */}
-        <div className="absolute right-0 top-0 h-6 w-6 border-r border-t opacity-30" style={{ borderColor: data.backgroundColor ? 'white' : '#003865' }} />
-        {/* Bottom-left corner */}
-        <div className="absolute bottom-0 left-0 h-6 w-6 border-b border-l opacity-30" style={{ borderColor: data.backgroundColor ? 'white' : '#003865' }} />
-        {/* Bottom-right corner */}
-        <div className="absolute bottom-0 right-0 h-6 w-6 border-b border-r opacity-30" style={{ borderColor: data.backgroundColor ? 'white' : '#003865' }} />
+      {/* Large decorative quote mark — background element */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-display text-[30vw] leading-none text-white/[0.03]">
+        &ldquo;
       </div>
 
-      <blockquote ref={quoteRef} className="relative z-10 max-w-4xl text-center">
-        <p className="font-display text-3xl leading-[1.25] text-navy md:text-4xl lg:text-5xl xl:text-[3.5rem]">
-          &ldquo;{data.quote}&rdquo;
+      <blockquote ref={quoteRef} className="relative z-10 max-w-5xl text-center">
+        {/* Quote text — word-by-word animation */}
+        <p className="font-display text-3xl leading-[1.2] text-gold md:text-4xl lg:text-5xl xl:text-[3.5rem] xl:leading-[1.2]">
+          &ldquo;
+          {words.map((word, i) => (
+            <span key={i} data-word className="inline-block">
+              {word}
+              {i < words.length - 1 ? '\u00A0' : ''}
+            </span>
+          ))}
+          &rdquo;
         </p>
 
         {data.attribution && (
-          <footer className="mt-8 font-heading text-[11px] uppercase tracking-[0.4em] text-navy/50">
+          <footer className="mt-10 font-heading text-[11px] uppercase tracking-[0.4em] text-white/40">
             — {data.attribution}
           </footer>
         )}
-
-        {/* Divider icon */}
-        <div className="mt-8 flex justify-center">
-          <span className="font-display text-2xl text-navy/30">&#10043;</span>
-        </div>
       </blockquote>
     </section>
   )

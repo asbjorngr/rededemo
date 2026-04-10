@@ -23,21 +23,32 @@ interface GalleryProps {
   index: number
 }
 
+// Predefined positions for stacked gallery — editorial overlapping
+const STACK_POSITIONS = [
+  { x: 0, y: 0, rotate: -2, scale: 1 },
+  { x: 15, y: -8, rotate: 1.5, scale: 0.95 },
+  { x: -10, y: 5, rotate: -1, scale: 0.92 },
+  { x: 20, y: -3, rotate: 2.5, scale: 0.88 },
+  { x: -15, y: 8, rotate: -1.5, scale: 0.9 },
+  { x: 5, y: -12, rotate: 0.5, scale: 0.93 },
+]
+
 export function Gallery({ data }: GalleryProps) {
   const [viewMode, setViewMode] = useState<'gallery' | 'grid'>('gallery')
+  const [activeIndex, setActiveIndex] = useState(0)
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const mm = gsap.matchMedia()
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      if (sectionRef.current) {
+      if (sectionRef.current && viewMode === 'grid') {
         const items = sectionRef.current.querySelectorAll('[data-gallery-item]')
         gsap.from(items, {
-          y: 50,
+          y: 40,
           opacity: 0,
-          duration: 0.8,
-          stagger: 0.1,
+          duration: 0.7,
+          stagger: 0.08,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: sectionRef.current,
@@ -88,43 +99,52 @@ export function Gallery({ data }: GalleryProps) {
         </div>
       </div>
 
-      {/* Gallery view — stacked/overlapping images */}
+      {/* Gallery view — stacked images, hover to bring to front */}
       {viewMode === 'gallery' && (
-        <div className="mx-auto max-w-5xl">
-          <div className="relative flex flex-col items-center gap-[-2rem]">
+        <div className="mx-auto max-w-4xl">
+          <div className="relative" style={{ height: 'clamp(400px, 60vh, 700px)' }}>
             {images.map((img, i) => {
-              // Alternate sizes and slight offsets for editorial feel
-              const isWide = i % 3 === 0
-              const offset = i % 2 === 0 ? 'lg:-translate-x-8' : 'lg:translate-x-8'
+              const pos = STACK_POSITIONS[i % STACK_POSITIONS.length]
+              const isActive = i === activeIndex
+              const zIndex = isActive ? 50 : images.length - Math.abs(i - activeIndex)
 
               return (
                 <div
                   key={img._key || i}
-                  data-gallery-item
-                  className={`relative w-full ${isWide ? 'max-w-4xl' : 'max-w-2xl'} ${offset} ${i > 0 ? '-mt-6 lg:-mt-10' : ''}`}
-                  style={{ zIndex: images.length - i }}
+                  className="absolute left-1/2 top-1/2 w-[60%] max-w-[500px] cursor-pointer transition-all duration-500 ease-out lg:w-[50%]"
+                  style={{
+                    transform: isActive
+                      ? 'translate(-50%, -50%) rotate(0deg) scale(1)'
+                      : `translate(calc(-50% + ${pos.x}%), calc(-50% + ${pos.y}%)) rotate(${pos.rotate}deg) scale(${pos.scale})`,
+                    zIndex,
+                    filter: isActive ? 'none' : 'brightness(0.7)',
+                  }}
+                  onMouseEnter={() => setActiveIndex(i)}
+                  onClick={() => setActiveIndex(i)}
                 >
-                  <div className={`relative overflow-hidden shadow-2xl ${isWide ? 'aspect-[16/10]' : 'aspect-[4/3]'}`}>
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-sm shadow-2xl">
                     <Image
-                      src={urlFor(img).width(isWide ? 1200 : 800).height(isWide ? 750 : 600).fit('crop').url()}
+                      src={urlFor(img).width(800).height(600).fit('crop').url()}
                       alt={img.alt || ''}
                       fill
                       className="object-cover"
-                      sizes={isWide ? '80vw' : '60vw'}
+                      sizes="50vw"
                     />
                   </div>
-                  {(img.caption || img.photographer) && (
-                    <p className="mt-2 text-center font-heading text-[10px] uppercase tracking-[0.3em] text-white/40">
-                      {img.caption}
-                      {img.photographer && (
-                        <>{img.caption ? ' — ' : ''}Foto: {img.photographer}</>
-                      )}
-                    </p>
-                  )}
                 </div>
               )
             })}
           </div>
+
+          {/* Active image caption */}
+          {images[activeIndex] && (images[activeIndex].caption || images[activeIndex].photographer) && (
+            <p className="mt-6 text-center font-heading text-[10px] uppercase tracking-[0.3em] text-white/40 transition-all duration-300">
+              {images[activeIndex].caption}
+              {images[activeIndex].photographer && (
+                <>{images[activeIndex].caption ? ' — ' : ''}Foto: {images[activeIndex].photographer}</>
+              )}
+            </p>
+          )}
         </div>
       )}
 

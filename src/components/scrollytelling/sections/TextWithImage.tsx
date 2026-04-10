@@ -19,20 +19,32 @@ interface TextWithImageProps {
   index: number
 }
 
+/**
+ * Detect if a text block is an inline quote (starts with – or «)
+ */
+function isInlineQuote(block: any): boolean {
+  if (block._type !== 'block' || block.style !== 'normal') return false
+  const text = block.children?.map((c: any) => c.text)?.join('') || ''
+  return text.startsWith('–') || text.startsWith('−') || text.startsWith('«')
+}
+
 export function TextWithImage({ data, index }: TextWithImageProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
   const textRef = useRef<HTMLDivElement>(null)
+  const ledeRef = useRef<HTMLDivElement>(null)
+
+  const isFirstTextSection = index === 1 // Right after hero (index 0)
 
   useEffect(() => {
     const mm = gsap.matchMedia()
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      // Cinematic image reveal — scale from slightly zoomed
+      // Cinematic image reveal
       if (imageRef.current) {
         gsap.from(imageRef.current, {
-          scale: 1.08,
-          opacity: 0.6,
+          scale: 1.06,
+          opacity: 0.4,
           duration: 1.4,
           ease: 'power2.out',
           scrollTrigger: {
@@ -43,14 +55,29 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
         })
       }
 
-      // Text fade in
-      if (textRef.current) {
-        const paragraphs = textRef.current.querySelectorAll('p, h2, h3, h4')
-        gsap.from(paragraphs, {
-          y: 30,
+      // Lede — big intro text animation
+      if (ledeRef.current) {
+        gsap.from(ledeRef.current, {
+          y: 60,
           opacity: 0,
-          duration: 0.7,
-          stagger: 0.08,
+          duration: 1.2,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: ledeRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+          },
+        })
+      }
+
+      // Body text paragraphs stagger in
+      if (textRef.current) {
+        const elements = textRef.current.querySelectorAll('p, blockquote, h2, h3')
+        gsap.from(elements, {
+          y: 25,
+          opacity: 0,
+          duration: 0.6,
+          stagger: 0.06,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: textRef.current,
@@ -64,14 +91,21 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
     return () => mm.revert()
   }, [])
 
-  const isFirstSection = index <= 1
   const bgColor = data.backgroundColor || '#003865'
-
-  // Use hotspot for object-position if available
   const hotspot = data.image?.hotspot
   const objectPosition = hotspot
     ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
     : 'center 30%'
+
+  // Split text: first paragraph as lede (if first section), rest as body
+  const blocks = data.text || []
+  let ledeBlock: any = null
+  let bodyBlocks = blocks
+
+  if (isFirstTextSection && blocks.length > 0 && blocks[0]._type === 'block') {
+    ledeBlock = blocks[0]
+    bodyBlocks = blocks.slice(1)
+  }
 
   return (
     <section
@@ -79,12 +113,32 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
       className="relative"
       style={{ backgroundColor: bgColor }}
     >
-      {/* Section title — small caps label */}
+      {/* Section title label */}
       {data.title && (
         <div className="px-6 pt-16 lg:px-16 lg:pt-24">
           <h2 className="mx-auto max-w-3xl font-heading text-[11px] uppercase tracking-[0.4em] text-gold">
             {data.title}
           </h2>
+        </div>
+      )}
+
+      {/* LEDE — huge display font intro (Joshua's style) */}
+      {ledeBlock && (
+        <div ref={ledeRef} className="px-6 pt-16 lg:px-16 lg:pt-24">
+          <div className="mx-auto max-w-5xl">
+            <PortableText
+              value={[ledeBlock]}
+              components={{
+                block: {
+                  normal: ({ children }) => (
+                    <p className="font-display text-2xl leading-[1.3] text-gold md:text-3xl lg:text-[2.75rem] lg:leading-[1.25] xl:text-[3.25rem]">
+                      {children}
+                    </p>
+                  ),
+                },
+              }}
+            />
+          </div>
         </div>
       )}
 
@@ -103,10 +157,8 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
                 className="object-cover"
                 style={{ objectPosition }}
                 sizes="(max-width: 1024px) 100vw, 80vw"
-                priority={isFirstSection}
               />
             </div>
-            {/* Caption in small caps */}
             {(data.image.caption || data.image.photographer) && (
               <p className="mt-3 text-center font-heading text-[10px] uppercase tracking-[0.3em] text-white/40">
                 {data.image.caption}
@@ -119,34 +171,44 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
         </div>
       )}
 
-      {/* Text — centered prose */}
-      {data.text && data.text.length > 0 && (
+      {/* Body text — centered prose with smart quote detection */}
+      {bodyBlocks.length > 0 && (
         <div
           ref={textRef}
           className="px-6 py-14 lg:px-16 lg:py-20"
         >
-          <div className={`mx-auto max-w-[680px] ${isFirstSection ? 'text-block-intro' : ''}`}>
+          <div className="mx-auto max-w-[680px]">
             <PortableText
-              value={data.text}
+              value={bodyBlocks}
               components={{
                 block: {
-                  normal: ({ children }) => (
-                    <p className="mb-6 font-body text-[17px] leading-[1.75] text-white/80 lg:text-[18px]">
-                      {children}
-                    </p>
-                  ),
+                  normal: ({ children, value }) => {
+                    // Detect inline quotes (lines starting with – or «)
+                    if (isInlineQuote(value)) {
+                      return (
+                        <blockquote className="my-8 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
+                          {children}
+                        </blockquote>
+                      )
+                    }
+                    return (
+                      <p className="mb-6 text-[17px] leading-[1.75] text-white/80 lg:text-[18px]">
+                        {children}
+                      </p>
+                    )
+                  },
                   h2: ({ children }) => (
-                    <h2 className="mb-6 mt-10 font-display text-3xl leading-tight text-white lg:text-4xl">
+                    <h2 className="mb-6 mt-14 font-display text-3xl leading-tight text-white lg:text-4xl">
                       {children}
                     </h2>
                   ),
                   h3: ({ children }) => (
-                    <h3 className="mb-4 mt-8 font-heading text-xl text-white lg:text-2xl">
+                    <h3 className="mb-4 mt-10 font-heading text-xl text-white lg:text-2xl">
                       {children}
                     </h3>
                   ),
                   blockquote: ({ children }) => (
-                    <blockquote className="my-8 border-l-2 border-gold/40 pl-6 font-display text-xl italic leading-relaxed text-white/60 lg:text-2xl">
+                    <blockquote className="my-10 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
                       {children}
                     </blockquote>
                   ),

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
-import { gsap } from '@/lib/gsap-config'
+import { gsap, ScrollTrigger } from '@/lib/gsap-config'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface HeroSectionProps {
@@ -23,23 +23,19 @@ export function HeroSection({ data }: HeroSectionProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const metaRef = useRef<HTMLDivElement>(null)
-  const imageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const mm = gsap.matchMedia()
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      // Subtle parallax on hero image
-      if (imageRef.current) {
-        gsap.to(imageRef.current, {
-          yPercent: 8,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true,
-          },
+      // Pin the hero — content scrolls OVER it
+      if (sectionRef.current) {
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          pin: true,
+          pinSpacing: false,
         })
       }
 
@@ -72,33 +68,31 @@ export function HeroSection({ data }: HeroSectionProps) {
   const hotspot = data.image?.hotspot
   const objectPosition = hotspot
     ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
-    : 'center 30%' // Default: slightly above center to preserve faces
+    : 'center 30%'
 
   return (
     <section
       ref={sectionRef}
       className="relative flex h-screen w-full overflow-hidden"
-      style={{ backgroundColor: data.backgroundColor || undefined }}
+      style={{ backgroundColor: data.backgroundColor || '#000' }}
     >
-      {/* Parallax image container */}
+      {/* Background image */}
       {data.image?.asset && (
-        <div ref={imageRef} className="absolute inset-x-0 -top-[5%] h-[115%]">
-          <Image
-            src={urlFor(data.image).width(1920).height(1080).fit('crop').url()}
-            alt={data.image.alt || ''}
-            fill
-            className="object-cover"
-            style={{ objectPosition }}
-            sizes="100vw"
-            priority
-          />
-        </div>
+        <Image
+          src={urlFor(data.image).width(1920).height(1080).fit('crop').url()}
+          alt={data.image.alt || ''}
+          fill
+          className="object-cover"
+          style={{ objectPosition }}
+          sizes="100vw"
+          priority
+        />
       )}
 
       {/* Gradient overlays — cinematic */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-black/20" />
 
-      {/* Content — centered at bottom (Joshua's style) */}
+      {/* Content — centered at bottom */}
       <div className="relative z-10 flex w-full flex-col items-center justify-end px-6 pb-16 text-center lg:px-16 lg:pb-20">
         {data.title && (
           <h1
@@ -109,7 +103,6 @@ export function HeroSection({ data }: HeroSectionProps) {
           </h1>
         )}
 
-        {/* Author & date — centered below title */}
         <div ref={metaRef}>
           {data.subtitle && (
             <p className="mt-4 max-w-xl text-base leading-relaxed text-white/60 lg:text-lg">
