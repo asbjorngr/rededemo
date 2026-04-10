@@ -10,7 +10,7 @@ import { PortableText } from '@portabletext/react'
 interface TextWithImageProps {
   data: {
     text?: any[]
-    image?: { asset: { _ref: string }; alt?: string; caption?: string; photographer?: string }
+    image?: { asset: { _ref: string }; alt?: string; caption?: string; photographer?: string; hotspot?: { x: number; y: number } }
     imagePosition?: 'left' | 'right'
     imageSize?: 'small' | 'medium' | 'large'
     backgroundColor?: string
@@ -67,6 +67,12 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
   const isFirstSection = index <= 1
   const bgColor = data.backgroundColor || '#003865'
 
+  // Use hotspot for object-position if available
+  const hotspot = data.image?.hotspot
+  const objectPosition = hotspot
+    ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
+    : 'center 30%'
+
   return (
     <section
       ref={sectionRef}
@@ -91,10 +97,11 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
           >
             <div className="relative aspect-[16/10] w-full">
               <Image
-                src={urlFor(data.image).width(1400).height(875).url()}
+                src={urlFor(data.image).width(1400).height(875).fit('crop').url()}
                 alt={data.image.alt || ''}
                 fill
                 className="object-cover"
+                style={{ objectPosition }}
                 sizes="(max-width: 1024px) 100vw, 80vw"
                 priority={isFirstSection}
               />

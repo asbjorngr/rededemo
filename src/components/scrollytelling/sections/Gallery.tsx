@@ -10,6 +10,7 @@ interface GalleryImage {
   alt?: string
   caption?: string
   photographer?: string
+  hotspot?: { x: number; y: number }
   _key?: string
 }
 
@@ -105,7 +106,7 @@ export function Gallery({ data }: GalleryProps) {
                 >
                   <div className={`relative overflow-hidden shadow-2xl ${isWide ? 'aspect-[16/10]' : 'aspect-[4/3]'}`}>
                     <Image
-                      src={urlFor(img).width(isWide ? 1200 : 800).height(isWide ? 750 : 600).url()}
+                      src={urlFor(img).width(isWide ? 1200 : 800).height(isWide ? 750 : 600).fit('crop').url()}
                       alt={img.alt || ''}
                       fill
                       className="object-cover"
@@ -139,7 +140,7 @@ export function Gallery({ data }: GalleryProps) {
               >
                 <div className="relative aspect-[4/3]">
                   <Image
-                    src={urlFor(img).width(600).height(450).url()}
+                    src={urlFor(img).width(600).height(450).fit('crop').url()}
                     alt={img.alt || ''}
                     fill
                     className="object-cover"

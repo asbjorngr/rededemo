@@ -28,7 +28,7 @@ export function FeaturedHero({ articles }: FeaturedHeroProps) {
           {/* Fullscreen background image */}
           {article.heroImage?.asset && (
             <Image
-              src={urlFor(article.heroImage).width(1920).height(1080).url()}
+              src={urlFor(article.heroImage).width(1920).height(1080).fit('crop').url()}
               alt={article.heroImage.alt || article.title}
               fill
               className="object-cover"

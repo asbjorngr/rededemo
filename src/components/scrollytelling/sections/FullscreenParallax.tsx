@@ -9,7 +9,7 @@ import { PortableText } from '@portabletext/react'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface FullscreenParallaxProps {
   data: {
-    backgroundImage?: { asset: { _ref: string }; alt?: string; caption?: string; photographer?: string }
+    backgroundImage?: { asset: { _ref: string }; alt?: string; caption?: string; photographer?: string; hotspot?: { x: number; y: number } }
     overlayText?: any[]
     overlayPosition?: 'left' | 'center' | 'right'
     darkenOverlay?: number
@@ -62,6 +62,12 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
 
   const darken = data.darkenOverlay ?? 40
 
+  // Use hotspot for object-position if available
+  const hotspot = data.backgroundImage?.hotspot
+  const objectPosition = hotspot
+    ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
+    : 'center 30%'
+
   return (
     <section
       ref={sectionRef}
@@ -72,10 +78,11 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
       {data.backgroundImage?.asset && (
         <div ref={imageRef} className="absolute inset-x-0 -top-[12%] h-[130%]">
           <Image
-            src={urlFor(data.backgroundImage).width(1920).height(1400).url()}
+            src={urlFor(data.backgroundImage).width(1920).height(1400).fit('crop').url()}
             alt={data.backgroundImage.alt || ''}
             fill
             className="object-cover"
+            style={{ objectPosition }}
             sizes="100vw"
           />
         </div>
