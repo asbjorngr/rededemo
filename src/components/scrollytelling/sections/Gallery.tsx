@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
-import { gsap, ScrollTrigger } from '@/lib/gsap-config'
+import { gsap } from '@/lib/gsap-config'
 
 interface GalleryImage {
   asset: { _ref: string }
@@ -23,46 +23,24 @@ interface GalleryProps {
 }
 
 export function Gallery({ data }: GalleryProps) {
+  const [viewMode, setViewMode] = useState<'gallery' | 'grid'>('gallery')
   const sectionRef = useRef<HTMLElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const mm = gsap.matchMedia()
 
-    // Horizontal scroll on desktop for carousel layout
-    if (data.layout === 'carousel') {
-      mm.add('(min-width: 1024px)', () => {
-        if (!trackRef.current || !sectionRef.current) return
-
-        const totalWidth = trackRef.current.scrollWidth - window.innerWidth
-
-        gsap.to(trackRef.current, {
-          x: -totalWidth,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top top',
-            end: `+=${totalWidth}`,
-            scrub: 1,
-            pin: true,
-          },
-        })
-      })
-    }
-
-    // Staggered reveal for grid/masonry
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      if (data.layout !== 'carousel' && sectionRef.current) {
+      if (sectionRef.current) {
         const items = sectionRef.current.querySelectorAll('[data-gallery-item]')
         gsap.from(items, {
-          y: 40,
+          y: 50,
           opacity: 0,
-          duration: 0.6,
-          stagger: 0.12,
+          duration: 0.8,
+          stagger: 0.1,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 75%',
+            start: 'top 70%',
             toggleActions: 'play none none reverse',
           },
         })
@@ -70,78 +48,114 @@ export function Gallery({ data }: GalleryProps) {
     })
 
     return () => mm.revert()
-  }, [data.layout])
+  }, [viewMode])
 
   const images = data.images || []
   if (images.length === 0) return null
 
-  // Carousel layout
-  if (data.layout === 'carousel') {
-    return (
-      <section
-        ref={sectionRef}
-        className="relative h-screen overflow-hidden"
-        style={{ backgroundColor: data.backgroundColor || '#003865' }}
-      >
-        <div ref={trackRef} className="flex h-full items-center gap-6 px-12">
-          {images.map((img, i) => (
-            <div key={img._key || i} className="relative h-[70vh] w-[50vw] shrink-0 overflow-hidden rounded-lg lg:w-[35vw]">
-              <Image
-                src={urlFor(img).width(800).height(1000).url()}
-                alt={img.alt || ''}
-                fill
-                className="object-cover"
-                sizes="50vw"
-              />
-              {img.caption && (
-                <p className="absolute bottom-3 left-3 text-xs text-white/60">
-                  {img.caption}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-    )
-  }
+  const bgColor = data.backgroundColor || '#003865'
 
-  // Grid / Masonry layout
   return (
     <section
       ref={sectionRef}
-      className="px-6 py-16"
-      style={{ backgroundColor: data.backgroundColor || '#003865' }}
+      className="relative px-6 py-16 lg:px-16 lg:py-24"
+      style={{ backgroundColor: bgColor }}
     >
-      <div
-        className={`mx-auto max-w-5xl ${
-          data.layout === 'masonry'
-            ? 'columns-2 gap-4 lg:columns-3'
-            : 'grid grid-cols-2 gap-4 lg:grid-cols-3'
-        }`}
-      >
-        {images.map((img, i) => (
-          <div
-            key={img._key || i}
-            data-gallery-item
-            className={`overflow-hidden rounded-lg ${
-              data.layout === 'masonry' ? 'mb-4 break-inside-avoid' : ''
+      {/* Gallery/Grid toggle */}
+      <div className="mb-8 flex justify-center">
+        <div className="inline-flex overflow-hidden rounded-full border border-white/20">
+          <button
+            onClick={() => setViewMode('gallery')}
+            className={`cursor-pointer px-5 py-2 font-heading text-[10px] uppercase tracking-[0.2em] transition-colors ${
+              viewMode === 'gallery'
+                ? 'bg-white/15 text-white'
+                : 'text-white/50 hover:text-white/70'
             }`}
           >
-            <div className="relative aspect-[4/3]">
-              <Image
-                src={urlFor(img).width(600).height(450).url()}
-                alt={img.alt || ''}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 50vw, 33vw"
-              />
-            </div>
-            {img.caption && (
-              <p className="mt-2 text-xs text-white/50">{img.caption}</p>
-            )}
-          </div>
-        ))}
+            Galleri
+          </button>
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`cursor-pointer px-5 py-2 font-heading text-[10px] uppercase tracking-[0.2em] transition-colors ${
+              viewMode === 'grid'
+                ? 'bg-white/15 text-white'
+                : 'text-white/50 hover:text-white/70'
+            }`}
+          >
+            Rutenett
+          </button>
+        </div>
       </div>
+
+      {/* Gallery view — stacked/overlapping images */}
+      {viewMode === 'gallery' && (
+        <div className="mx-auto max-w-5xl">
+          <div className="relative flex flex-col items-center gap-[-2rem]">
+            {images.map((img, i) => {
+              // Alternate sizes and slight offsets for editorial feel
+              const isWide = i % 3 === 0
+              const offset = i % 2 === 0 ? 'lg:-translate-x-8' : 'lg:translate-x-8'
+
+              return (
+                <div
+                  key={img._key || i}
+                  data-gallery-item
+                  className={`relative w-full ${isWide ? 'max-w-4xl' : 'max-w-2xl'} ${offset} ${i > 0 ? '-mt-6 lg:-mt-10' : ''}`}
+                  style={{ zIndex: images.length - i }}
+                >
+                  <div className={`relative overflow-hidden shadow-2xl ${isWide ? 'aspect-[16/10]' : 'aspect-[4/3]'}`}>
+                    <Image
+                      src={urlFor(img).width(isWide ? 1200 : 800).height(isWide ? 750 : 600).url()}
+                      alt={img.alt || ''}
+                      fill
+                      className="object-cover"
+                      sizes={isWide ? '80vw' : '60vw'}
+                    />
+                  </div>
+                  {(img.caption || img.photographer) && (
+                    <p className="mt-2 text-center font-heading text-[10px] uppercase tracking-[0.3em] text-white/40">
+                      {img.caption}
+                      {img.photographer && (
+                        <>{img.caption ? ' — ' : ''}Foto: {img.photographer}</>
+                      )}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Grid view — clean grid */}
+      {viewMode === 'grid' && (
+        <div className="mx-auto max-w-5xl">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {images.map((img, i) => (
+              <div
+                key={img._key || i}
+                data-gallery-item
+                className="overflow-hidden"
+              >
+                <div className="relative aspect-[4/3]">
+                  <Image
+                    src={urlFor(img).width(600).height(450).url()}
+                    alt={img.alt || ''}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                </div>
+                {img.caption && (
+                  <p className="mt-2 font-heading text-[10px] uppercase tracking-[0.2em] text-white/40">
+                    {img.caption}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   )
 }
