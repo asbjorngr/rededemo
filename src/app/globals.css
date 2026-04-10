@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-navy: #003865;
+  --color-mint: #F1F8F0;
+  --color-gold: #F6BE00;
+  --color-tobb-green: #74AA50;
+  --color-teal: #487A7B;
+  --color-magenta: #AA0061;
+  --color-purple: #6B3077;
+  --color-tobb-blue: #0047BB;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+}
