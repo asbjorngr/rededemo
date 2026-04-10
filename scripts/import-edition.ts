@@ -372,12 +372,14 @@ function buildSections(
           _key: key,
           layout: section.layout || 'grid',
           transition: 'crossfade',
-          images: ((section.imageIndices as number[]) || []).map((idx) => ({
-            _type: 'image',
-            _key: randomKey(),
-            ...uploadedImages[idx],
-            alt: 'Bilde fra artikkelen',
-          })),
+          images: ((section.imageIndices as number[]) || []).map((idx) => {
+            const img = uploadedImages[idx]
+            return {
+              ...img,
+              _key: randomKey(),
+              alt: 'Bilde fra artikkelen',
+            }
+          }),
         }
 
       default:
