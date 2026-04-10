@@ -1,4 +1,42 @@
 import { type SchemaTypeDefinition } from 'sanity'
 
-// Placeholder — skjemaer legges til i Fase 1
-export const schemaTypes: SchemaTypeDefinition[] = []
+// Dokumenttyper
+import { article } from './documents/article'
+import { edition } from './documents/edition'
+import { editorial } from './documents/editorial'
+import { videoPost } from './documents/videoPost'
+import { podcastEpisode } from './documents/podcastEpisode'
+import { tag } from './documents/tag'
+import { author } from './documents/author'
+
+// Objekttyper (seksjoner + blockContent)
+import { blockContent } from './objects/blockContent'
+import { heroSection } from './objects/heroSection'
+import { textWithImage } from './objects/textWithImage'
+import { fullscreenParallax } from './objects/fullscreenParallax'
+import { pullQuote } from './objects/pullQuote'
+import { videoSection } from './objects/videoSection'
+import { audioSection } from './objects/audioSection'
+import { factBox } from './objects/factBox'
+import { gallery } from './objects/gallery'
+
+export const schemaTypes: SchemaTypeDefinition[] = [
+  // Dokumenter
+  article,
+  edition,
+  editorial,
+  videoPost,
+  podcastEpisode,
+  tag,
+  author,
+  // Objekter
+  blockContent,
+  heroSection,
+  textWithImage,
+  fullscreenParallax,
+  pullQuote,
+  videoSection,
+  audioSection,
+  factBox,
+  gallery,
+]
