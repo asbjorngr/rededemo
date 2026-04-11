@@ -23,14 +23,14 @@ interface GalleryProps {
   index: number
 }
 
-// Predefined positions for stacked gallery — editorial overlapping
+// Predefined positions for stacked gallery — wider spread, bigger images
 const STACK_POSITIONS = [
   { x: 0, y: 0, rotate: -2, scale: 1 },
-  { x: 15, y: -8, rotate: 1.5, scale: 0.95 },
-  { x: -10, y: 5, rotate: -1, scale: 0.92 },
-  { x: 20, y: -3, rotate: 2.5, scale: 0.88 },
-  { x: -15, y: 8, rotate: -1.5, scale: 0.9 },
-  { x: 5, y: -12, rotate: 0.5, scale: 0.93 },
+  { x: 18, y: -10, rotate: 2, scale: 0.96 },
+  { x: -14, y: 6, rotate: -1.5, scale: 0.93 },
+  { x: 22, y: -4, rotate: 3, scale: 0.9 },
+  { x: -18, y: 10, rotate: -2, scale: 0.92 },
+  { x: 8, y: -14, rotate: 1, scale: 0.94 },
 ]
 
 export function Gallery({ data }: GalleryProps) {
@@ -70,11 +70,11 @@ export function Gallery({ data }: GalleryProps) {
   return (
     <section
       ref={sectionRef}
-      className="relative px-6 py-16 lg:px-16 lg:py-24"
+      className="relative px-6 py-20 lg:px-16 lg:py-32"
       style={{ backgroundColor: bgColor }}
     >
       {/* Gallery/Grid toggle */}
-      <div className="mb-8 flex justify-center">
+      <div className="mb-12 flex justify-center">
         <div className="inline-flex overflow-hidden rounded-full border border-white/20">
           <button
             onClick={() => setViewMode('gallery')}
@@ -101,8 +101,8 @@ export function Gallery({ data }: GalleryProps) {
 
       {/* Gallery view — stacked images, hover to bring to front */}
       {viewMode === 'gallery' && (
-        <div className="mx-auto max-w-4xl">
-          <div className="relative" style={{ height: 'clamp(400px, 60vh, 700px)' }}>
+        <div className="mx-auto max-w-5xl">
+          <div className="relative" style={{ height: 'clamp(450px, 70vh, 800px)' }}>
             {images.map((img, i) => {
               const pos = STACK_POSITIONS[i % STACK_POSITIONS.length]
               const isActive = i === activeIndex
@@ -111,7 +111,7 @@ export function Gallery({ data }: GalleryProps) {
               return (
                 <div
                   key={img._key || i}
-                  className="absolute left-1/2 top-1/2 w-[60%] max-w-[500px] cursor-pointer transition-all duration-500 ease-out lg:w-[50%]"
+                  className="absolute left-1/2 top-1/2 w-[70%] max-w-[650px] cursor-pointer transition-all duration-500 ease-out lg:w-[60%]"
                   style={{
                     transform: isActive
                       ? 'translate(-50%, -50%) rotate(0deg) scale(1)'
@@ -124,11 +124,11 @@ export function Gallery({ data }: GalleryProps) {
                 >
                   <div className="relative aspect-[4/3] overflow-hidden rounded-sm shadow-2xl">
                     <Image
-                      src={urlFor(img).width(800).height(600).fit('crop').url()}
+                      src={urlFor(img).width(1000).height(750).fit('crop').url()}
                       alt={img.alt || ''}
                       fill
                       className="object-cover"
-                      sizes="50vw"
+                      sizes="60vw"
                     />
                   </div>
                 </div>
@@ -138,7 +138,7 @@ export function Gallery({ data }: GalleryProps) {
 
           {/* Active image caption */}
           {images[activeIndex] && (images[activeIndex].caption || images[activeIndex].photographer) && (
-            <p className="mt-6 text-center font-heading text-[10px] uppercase tracking-[0.3em] text-white/40 transition-all duration-300">
+            <p className="mt-8 text-center font-heading text-[10px] uppercase tracking-[0.3em] text-white/40 transition-all duration-300">
               {images[activeIndex].caption}
               {images[activeIndex].photographer && (
                 <>{images[activeIndex].caption ? ' — ' : ''}Foto: {images[activeIndex].photographer}</>
@@ -148,10 +148,10 @@ export function Gallery({ data }: GalleryProps) {
         </div>
       )}
 
-      {/* Grid view — clean grid */}
+      {/* Grid view — clean grid with more spacing */}
       {viewMode === 'grid' && (
-        <div className="mx-auto max-w-5xl">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {images.map((img, i) => (
               <div
                 key={img._key || i}
@@ -168,7 +168,7 @@ export function Gallery({ data }: GalleryProps) {
                   />
                 </div>
                 {img.caption && (
-                  <p className="mt-2 font-heading text-[10px] uppercase tracking-[0.2em] text-white/40">
+                  <p className="mt-3 font-heading text-[10px] uppercase tracking-[0.2em] text-white/40">
                     {img.caption}
                   </p>
                 )}

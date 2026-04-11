@@ -28,6 +28,28 @@ function isInlineQuote(block: any): boolean {
   return text.startsWith('–') || text.startsWith('−') || text.startsWith('«')
 }
 
+/**
+ * Pre-process blocks: if multiple inline quotes appear consecutively,
+ * only style the first one as a blockquote — the rest become normal text.
+ * This prevents the "wall of gold quotes" problem.
+ */
+function markQuoteBlocks(blocks: any[]): Set<number> {
+  const styledQuotes = new Set<number>()
+  let prevWasQuote = false
+
+  for (let i = 0; i < blocks.length; i++) {
+    if (isInlineQuote(blocks[i])) {
+      if (!prevWasQuote) {
+        styledQuotes.add(i)
+      }
+      prevWasQuote = true
+    } else {
+      prevWasQuote = false
+    }
+  }
+  return styledQuotes
+}
+
 export function TextWithImage({ data, index }: TextWithImageProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
@@ -107,18 +129,24 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
     bodyBlocks = blocks.slice(1)
   }
 
+  // Pre-calculate which quotes get styled treatment
+  const styledQuoteIndices = markQuoteBlocks(bodyBlocks)
+
   return (
     <section
       ref={sectionRef}
       className="relative"
       style={{ backgroundColor: bgColor }}
     >
-      {/* Section title label */}
+      {/* Section title — prominent display */}
       {data.title && (
         <div className="px-6 pt-16 lg:px-16 lg:pt-24">
-          <h2 className="mx-auto max-w-3xl font-heading text-[11px] uppercase tracking-[0.4em] text-gold">
-            {data.title}
-          </h2>
+          <div className="mx-auto max-w-[680px]">
+            <h2 className="font-display text-2xl leading-tight text-white lg:text-3xl">
+              {data.title}
+            </h2>
+            <div className="mt-4 h-px w-16 bg-gold/40" />
+          </div>
         </div>
       )}
 
@@ -183,12 +211,23 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
               components={{
                 block: {
                   normal: ({ children, value }) => {
-                    // Detect inline quotes (lines starting with – or «)
-                    if (isInlineQuote(value)) {
+                    // Find this block's index in bodyBlocks
+                    const blockIndex = bodyBlocks.indexOf(value)
+
+                    // Only style first quote in a consecutive run
+                    if (isInlineQuote(value) && styledQuoteIndices.has(blockIndex)) {
                       return (
                         <blockquote className="my-8 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
                           {children}
                         </blockquote>
+                      )
+                    }
+                    // Consecutive quotes after the first render as subtle italic
+                    if (isInlineQuote(value)) {
+                      return (
+                        <p className="mb-6 text-[17px] italic leading-[1.75] text-white/60 lg:text-[18px]">
+                          {children}
+                        </p>
                       )
                     }
                     return (

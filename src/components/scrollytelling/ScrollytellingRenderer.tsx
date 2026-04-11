@@ -54,85 +54,90 @@ export function ScrollytellingRenderer({ article }: ScrollytellingRendererProps)
         )
       })}
 
-      {/* Article footer — author info, share, meta */}
-      <footer className="relative bg-navy">
-        {/* Cream/light footer card — overlapping style */}
-        <div className="mx-auto max-w-4xl px-6 py-20 lg:px-16">
-          <div className="rounded-lg bg-mint p-8 shadow-lg lg:p-12">
-            <div className="grid gap-8 lg:grid-cols-2">
-              {/* Left — meta */}
-              <div>
-                {article.edition && (
-                  <>
-                    <h4 className="font-heading text-[10px] uppercase tracking-[0.3em] text-navy/40">
-                      Publisert i
-                    </h4>
-                    <p className="mt-1 font-display text-lg text-navy">
-                      Rede nr {article.edition.number} {article.edition.year}
-                    </p>
-                  </>
-                )}
+      {/* Article footer — full width, editorial */}
+      <footer className="relative bg-mint">
+        <div className="px-6 py-20 lg:px-16 lg:py-28">
+          {/* Large "Rede" branding */}
+          <div className="mb-16 text-center">
+            <Link href="/" className="font-display text-7xl text-navy/15 lg:text-9xl">
+              Rede
+            </Link>
+          </div>
 
-                {/* Share */}
-                <div className="mt-8">
+          {/* Content grid */}
+          <div className="mx-auto grid max-w-5xl gap-12 lg:grid-cols-3">
+            {/* Meta */}
+            <div>
+              {article.edition && (
+                <>
                   <h4 className="font-heading text-[10px] uppercase tracking-[0.3em] text-navy/40">
-                    Del artikkelen
-                  </h4>
-                  <div className="mt-3 flex gap-4">
-                    <button
-                      onClick={() => navigator.share?.({ title: article.title, url: window.location.href }).catch(() => {})}
-                      className="cursor-pointer font-heading text-xs uppercase tracking-wide text-navy/60 transition-colors hover:text-navy"
-                    >
-                      Del
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right — author */}
-              {article.author && (
-                <div>
-                  <h4 className="font-heading text-[10px] uppercase tracking-[0.3em] text-navy/40">
-                    Om forfatteren
+                    Publisert i
                   </h4>
                   <p className="mt-1 font-display text-lg text-navy">
-                    {article.author.name}
+                    Rede nr {article.edition.number} {article.edition.year}
                   </p>
-                  {article.author.bio && (
-                    <p className="mt-2 text-sm leading-relaxed text-navy/60">
-                      {article.author.bio}
-                    </p>
-                  )}
-                </div>
+                </>
               )}
             </div>
 
-            {/* Tags */}
-            {article.tags && article.tags.length > 0 && (
-              <div className="mt-8 flex flex-wrap gap-2 border-t border-navy/10 pt-6">
-                {article.tags.map((tag) => (
-                  <span
-                    key={tag._id}
-                    className="rounded-full border border-navy/15 px-3 py-1 font-heading text-[10px] uppercase tracking-[0.2em] text-navy/50"
-                  >
-                    {tag.title}
-                  </span>
-                ))}
+            {/* Author */}
+            {article.author && (
+              <div>
+                <h4 className="font-heading text-[10px] uppercase tracking-[0.3em] text-navy/40">
+                  Tekst
+                </h4>
+                <p className="mt-1 font-display text-lg text-navy">
+                  {article.author.name}
+                </p>
+                {article.author.bio && (
+                  <p className="mt-2 text-sm leading-relaxed text-navy/60">
+                    {article.author.bio}
+                  </p>
+                )}
               </div>
             )}
-          </div>
-        </div>
 
-        {/* Back to front */}
-        <div className="pb-16 text-center">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 font-heading text-[11px] uppercase tracking-[0.3em] text-white/40 transition-colors hover:text-white/70"
-          >
-            <span className="h-px w-8 bg-current" />
-            Tilbake til magasinet
-            <span className="h-px w-8 bg-current" />
-          </Link>
+            {/* Share */}
+            <div>
+              <h4 className="font-heading text-[10px] uppercase tracking-[0.3em] text-navy/40">
+                Del artikkelen
+              </h4>
+              <div className="mt-3">
+                <button
+                  onClick={() => navigator.share?.({ title: article.title, url: window.location.href }).catch(() => {})}
+                  className="cursor-pointer font-heading text-xs uppercase tracking-wide text-navy/60 transition-colors hover:text-navy"
+                >
+                  Del
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Tags */}
+          {article.tags && article.tags.length > 0 && (
+            <div className="mx-auto mt-12 flex max-w-5xl flex-wrap gap-2 border-t border-navy/10 pt-8">
+              {article.tags.map((tag) => (
+                <span
+                  key={tag._id}
+                  className="rounded-full border border-navy/15 px-3 py-1 font-heading text-[10px] uppercase tracking-[0.2em] text-navy/50"
+                >
+                  {tag.title}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Back to magazine */}
+          <div className="mt-16 text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 font-heading text-[11px] uppercase tracking-[0.3em] text-navy/40 transition-colors hover:text-navy/70"
+            >
+              <span className="h-px w-8 bg-current" />
+              Tilbake til magasinet
+              <span className="h-px w-8 bg-current" />
+            </Link>
+          </div>
         </div>
       </footer>
     </article>

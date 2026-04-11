@@ -89,8 +89,8 @@ export function HeroSection({ data }: HeroSectionProps) {
         />
       )}
 
-      {/* Gradient overlays — cinematic */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-black/20" />
+      {/* Gradient overlays — strong bottom for title legibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
 
       {/* Content — centered at bottom */}
       <div className="relative z-10 flex w-full flex-col items-center justify-end px-6 pb-16 text-center lg:px-16 lg:pb-20">
