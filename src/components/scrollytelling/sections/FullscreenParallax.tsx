@@ -18,6 +18,15 @@ interface FullscreenParallaxProps {
   index: number
 }
 
+/**
+ * Check if text is short enough to be a title (under ~60 chars, single block)
+ */
+function isShortTitle(blocks: any[]): boolean {
+  if (!blocks || blocks.length !== 1) return false
+  const text = blocks[0].children?.map((c: any) => c.text)?.join('') || ''
+  return text.length < 80
+}
+
 export function FullscreenParallax({ data }: FullscreenParallaxProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
@@ -60,13 +69,17 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
     return () => mm.revert()
   }, [])
 
-  const darken = data.darkenOverlay ?? 40
+  // Ensure minimum darken for text legibility
+  const rawDarken = data.darkenOverlay ?? 40
+  const darken = Math.max(rawDarken, 50)
 
   // Use hotspot for object-position if available
   const hotspot = data.backgroundImage?.hotspot
   const objectPosition = hotspot
     ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
     : 'center 30%'
+
+  const shortTitle = isShortTitle(data.overlayText || [])
 
   return (
     <section
@@ -88,30 +101,36 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
         </div>
       )}
 
-      {/* Darken overlay */}
+      {/* Darken overlay — stronger gradient at bottom for text */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
       <div
         className="absolute inset-0"
         style={{ backgroundColor: `rgba(0,0,0,${darken / 100})` }}
       />
 
-      {/* Overlay text — centered prose */}
+      {/* Overlay text */}
       {data.overlayText && data.overlayText.length > 0 && (
-        <div className="relative z-10 flex min-h-screen flex-col justify-end px-6 pb-16 lg:px-16 lg:pb-24">
+        <div className="relative z-10 flex min-h-screen flex-col justify-end px-6 pb-20 lg:px-16 lg:pb-28">
           <div
             ref={textRef}
-            className="mx-auto max-w-[680px]"
+            className={shortTitle ? 'mx-auto max-w-5xl text-center' : 'mx-auto max-w-[680px]'}
           >
             <PortableText
               value={data.overlayText}
               components={{
                 block: {
-                  normal: ({ children }) => (
-                    <p className="mb-6 text-[17px] leading-[1.75] text-white/80 lg:text-[18px]">
-                      {children}
-                    </p>
-                  ),
+                  normal: ({ children }) =>
+                    shortTitle ? (
+                      <h2 className="font-display text-4xl leading-[1.1] text-gold md:text-5xl lg:text-6xl xl:text-7xl">
+                        {children}
+                      </h2>
+                    ) : (
+                      <p className="mb-6 text-[17px] leading-[1.75] text-white/80 lg:text-[18px]">
+                        {children}
+                      </p>
+                    ),
                   h2: ({ children }) => (
-                    <h2 className="mb-6 font-display text-3xl leading-tight text-white lg:text-4xl">
+                    <h2 className="mb-6 font-display text-4xl leading-tight text-gold lg:text-5xl xl:text-6xl">
                       {children}
                     </h2>
                   ),

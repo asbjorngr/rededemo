@@ -29,24 +29,28 @@ function isInlineQuote(block: any): boolean {
 }
 
 /**
- * Pre-process blocks: if multiple inline quotes appear consecutively,
- * only style the first one as a blockquote — the rest become normal text.
- * This prevents the "wall of gold quotes" problem.
+ * Pre-process blocks: pick max 2 quotes to style as gold blockquotes.
+ * Spread them out — first and one near the middle. The rest render as
+ * subtle italic to avoid walls of gold.
  */
 function markQuoteBlocks(blocks: any[]): Set<number> {
-  const styledQuotes = new Set<number>()
-  let prevWasQuote = false
-
+  const quoteIndices: number[] = []
   for (let i = 0; i < blocks.length; i++) {
-    if (isInlineQuote(blocks[i])) {
-      if (!prevWasQuote) {
-        styledQuotes.add(i)
-      }
-      prevWasQuote = true
-    } else {
-      prevWasQuote = false
-    }
+    if (isInlineQuote(blocks[i])) quoteIndices.push(i)
   }
+
+  const styledQuotes = new Set<number>()
+  if (quoteIndices.length === 0) return styledQuotes
+
+  // Always style the first quote
+  styledQuotes.add(quoteIndices[0])
+
+  // If there are 3+ quotes, pick one near the middle
+  if (quoteIndices.length >= 3) {
+    const mid = Math.floor(quoteIndices.length / 2)
+    styledQuotes.add(quoteIndices[mid])
+  }
+
   return styledQuotes
 }
 
