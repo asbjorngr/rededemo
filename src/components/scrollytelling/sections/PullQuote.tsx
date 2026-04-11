@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react'
 import { gsap } from '@/lib/gsap-config'
-import { useScrollyTheme } from '../ScrollyThemeContext'
 
 interface PullQuoteProps {
   data: {
@@ -17,21 +16,20 @@ interface PullQuoteProps {
 export function PullQuote({ data }: PullQuoteProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const quoteRef = useRef<HTMLQuoteElement>(null)
-  const theme = useScrollyTheme()
 
   useEffect(() => {
     const mm = gsap.matchMedia()
-    const { animation } = theme
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       if (quoteRef.current) {
+        // Each word fades in sequentially for drama
         const words = quoteRef.current.querySelectorAll('[data-word]')
         if (words.length > 0) {
           gsap.from(words, {
             opacity: 0.15,
-            duration: animation.duration * 0.3,
-            stagger: animation.stagger * 0.4,
-            ease: animation.ease,
+            duration: 0.4,
+            stagger: 0.03,
+            ease: 'power2.out',
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 50%',
@@ -42,8 +40,8 @@ export function PullQuote({ data }: PullQuoteProps) {
           gsap.from(quoteRef.current, {
             scale: 0.94,
             opacity: 0,
-            duration: animation.duration,
-            ease: animation.ease,
+            duration: 1.4,
+            ease: 'power3.out',
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 50%',
@@ -55,7 +53,7 @@ export function PullQuote({ data }: PullQuoteProps) {
     })
 
     return () => mm.revert()
-  }, [theme])
+  }, [])
 
   // Split quote into words for staggered animation
   const words = data.quote?.split(/\s+/) || []
@@ -72,7 +70,7 @@ export function PullQuote({ data }: PullQuoteProps) {
 
       <blockquote ref={quoteRef} className="relative z-10 max-w-5xl text-center">
         {/* Quote text — word-by-word animation */}
-        <p className="font-display text-3xl leading-[1.2] md:text-4xl lg:text-5xl xl:text-[3.5rem] xl:leading-[1.2]" style={{ color: theme.colors.accent }}>
+        <p className="font-display text-3xl leading-[1.2] text-gold md:text-4xl lg:text-5xl xl:text-[3.5rem] xl:leading-[1.2]">
           &ldquo;
           {words.map((word, i) => (
             <span key={i} data-word className="inline-block">

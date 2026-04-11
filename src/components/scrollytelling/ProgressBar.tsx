@@ -2,11 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 import { gsap, ScrollTrigger } from '@/lib/gsap-config'
-import { useScrollyTheme } from './ScrollyThemeContext'
 
 export function ProgressBar() {
   const barRef = useRef<HTMLDivElement>(null)
-  const theme = useScrollyTheme()
 
   useEffect(() => {
     if (!barRef.current) return
@@ -29,8 +27,8 @@ export function ProgressBar() {
     <div className="fixed top-0 left-0 z-50 h-[3px] w-full">
       <div
         ref={barRef}
-        className="h-full w-full origin-left"
-        style={{ transform: 'scaleX(0)', backgroundColor: theme.colors.progressBar }}
+        className="h-full w-full origin-left bg-gold"
+        style={{ transform: 'scaleX(0)' }}
       />
     </div>
   )
