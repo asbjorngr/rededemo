@@ -195,17 +195,13 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
   }
 
   // Pre-calculate which quotes get styled treatment
-  const styledQuoteIndices = markQuoteBlocks(bodyBlocks)
+  // Skip blockquote styling in first text section — quotes there
+  // usually repeat in the PullQuote section that follows
+  const styledQuoteIndices = isFirstTextSection
+    ? new Set<number>()
+    : markQuoteBlocks(bodyBlocks)
 
-  // Split body text around image: text before image + image + text after
-  // Image goes after ~40% of blocks, or after 3 blocks minimum
   const hasImage = !!data.image?.asset
-  const splitPoint = hasImage && bodyBlocks.length > 4
-    ? Math.max(3, Math.floor(bodyBlocks.length * 0.4))
-    : bodyBlocks.length
-
-  const textBefore = bodyBlocks.slice(0, splitPoint)
-  const textAfter = bodyBlocks.slice(splitPoint)
 
   const imageElement = hasImage && (
     <div className="px-6 py-4 lg:px-16 lg:py-8">
@@ -273,20 +269,13 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
         </div>
       )}
 
-      {/* Text before image */}
-      {textBefore.length > 0 && (
-        <div data-text-block>
-          <TextBlocks blocks={textBefore} styledQuoteIndices={styledQuoteIndices} allBlocks={bodyBlocks} />
-        </div>
-      )}
-
-      {/* Image — placed between text halves for visual rhythm */}
+      {/* Image — at top of section, after lede */}
       {imageElement}
 
-      {/* Text after image */}
-      {textAfter.length > 0 && (
+      {/* Body text */}
+      {bodyBlocks.length > 0 && (
         <div data-text-block>
-          <TextBlocks blocks={textAfter} styledQuoteIndices={styledQuoteIndices} allBlocks={bodyBlocks} />
+          <TextBlocks blocks={bodyBlocks} styledQuoteIndices={styledQuoteIndices} allBlocks={bodyBlocks} />
         </div>
       )}
     </section>
