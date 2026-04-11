@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from '@/lib/gsap-config'
 import { PortableText } from '@portabletext/react'
+import { useScrollyTheme } from '../ScrollyThemeContext'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface FactBoxProps {
@@ -19,17 +20,19 @@ interface FactBoxProps {
 export function FactBox({ data }: FactBoxProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const boxRef = useRef<HTMLDivElement>(null)
+  const theme = useScrollyTheme()
 
   useEffect(() => {
     const mm = gsap.matchMedia()
+    const { animation } = theme
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       if (boxRef.current) {
         gsap.from(boxRef.current, {
           y: 40,
           opacity: 0,
-          duration: 1,
-          ease: 'power3.out',
+          duration: animation.duration,
+          ease: animation.ease,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 70%',
@@ -40,7 +43,7 @@ export function FactBox({ data }: FactBoxProps) {
     })
 
     return () => mm.revert()
-  }, [])
+  }, [theme])
 
   const bgColor = data.backgroundColor || '#003865'
 
@@ -53,17 +56,21 @@ export function FactBox({ data }: FactBoxProps) {
       <div className="mx-auto max-w-3xl">
         <div
           ref={boxRef}
-          className="relative overflow-hidden rounded-sm border border-gold/20 bg-gold/5 p-8 lg:p-12"
+          className="relative overflow-hidden rounded-sm border p-8 lg:p-12"
+          style={{
+            borderColor: `rgba(${theme.colors.accentRgb}, 0.2)`,
+            backgroundColor: `rgba(${theme.colors.accentRgb}, 0.05)`,
+          }}
         >
-          {/* Gold accent line at top */}
-          <div className="absolute inset-x-0 top-0 h-[2px] bg-gold/40" />
+          {/* Accent line at top */}
+          <div className="absolute inset-x-0 top-0 h-[2px]" style={{ backgroundColor: `rgba(${theme.colors.accentRgb}, 0.4)` }} />
 
           {data.icon && (
             <span className="mb-4 block text-3xl">{data.icon}</span>
           )}
 
           {data.title && (
-            <h3 className="mb-6 font-heading text-[11px] uppercase tracking-[0.4em] text-gold">
+            <h3 className="mb-6 font-heading text-[11px] uppercase tracking-[0.4em]" style={{ color: theme.colors.accent }}>
               {data.title}
             </h3>
           )}
@@ -95,7 +102,7 @@ export function FactBox({ data }: FactBoxProps) {
                   listItem: {
                     bullet: ({ children }) => (
                       <li className="flex items-baseline gap-3 text-[15px] text-white/70">
-                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold/60" />
+                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: `rgba(${theme.colors.accentRgb}, 0.6)` }} />
                         {children}
                       </li>
                     ),

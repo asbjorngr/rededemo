@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import { gsap, ScrollTrigger } from '@/lib/gsap-config'
 import { PortableText } from '@portabletext/react'
+import { useScrollyTheme } from '../ScrollyThemeContext'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface FullscreenParallaxProps {
@@ -31,16 +32,17 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
   const textRef = useRef<HTMLDivElement>(null)
+  const theme = useScrollyTheme()
 
   useEffect(() => {
     const mm = gsap.matchMedia()
+    const { animation } = theme
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      // Parallax on background image
       if (imageRef.current) {
         gsap.to(imageRef.current, {
           yPercent: -12,
-          ease: 'none',
+          ease: animation.parallaxScrubEase,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
@@ -50,13 +52,12 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
         })
       }
 
-      // Fade in overlay text
       if (textRef.current) {
         gsap.from(textRef.current, {
           y: 40,
           opacity: 0,
-          duration: 1.2,
-          ease: 'power3.out',
+          duration: animation.duration,
+          ease: animation.ease,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 50%',
@@ -67,7 +68,7 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
     })
 
     return () => mm.revert()
-  }, [])
+  }, [theme])
 
   // Ensure minimum darken for text legibility
   const rawDarken = data.darkenOverlay ?? 40
@@ -121,7 +122,7 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
                 block: {
                   normal: ({ children }) =>
                     shortTitle ? (
-                      <h2 className="font-display text-4xl leading-[1.1] text-gold md:text-5xl lg:text-6xl xl:text-7xl">
+                      <h2 className="font-display text-4xl leading-[1.1] md:text-5xl lg:text-6xl xl:text-7xl" style={{ color: theme.colors.accent }}>
                         {children}
                       </h2>
                     ) : (
@@ -130,7 +131,7 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
                       </p>
                     ),
                   h2: ({ children }) => (
-                    <h2 className="mb-6 font-display text-4xl leading-tight text-gold lg:text-5xl xl:text-6xl">
+                    <h2 className="mb-6 font-display text-4xl leading-tight lg:text-5xl xl:text-6xl" style={{ color: theme.colors.accent }}>
                       {children}
                     </h2>
                   ),

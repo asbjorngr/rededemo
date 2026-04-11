@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import { gsap } from '@/lib/gsap-config'
+import { useScrollyTheme } from '../ScrollyThemeContext'
 
 interface GalleryImage {
   asset: { _ref: string }
@@ -37,30 +38,50 @@ export function Gallery({ data }: GalleryProps) {
   const [viewMode, setViewMode] = useState<'gallery' | 'grid'>('gallery')
   const [activeIndex, setActiveIndex] = useState(0)
   const sectionRef = useRef<HTMLElement>(null)
+  const theme = useScrollyTheme()
 
   useEffect(() => {
     const mm = gsap.matchMedia()
+    const { animation } = theme
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       if (sectionRef.current && viewMode === 'grid') {
         const items = sectionRef.current.querySelectorAll('[data-gallery-item]')
-        gsap.from(items, {
-          y: 40,
-          opacity: 0,
-          duration: 0.7,
-          stagger: 0.08,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 70%',
-            toggleActions: 'play none none reverse',
-          },
-        })
+
+        if (animation.galleryEntrance === 'bounce') {
+          // Playful: items bounce in from alternating sides with rotation
+          gsap.from(items, {
+            x: (_i: number) => (_i % 2 === 0 ? -80 : 80),
+            rotation: (_i: number) => (_i % 2 === 0 ? -8 : 8),
+            opacity: 0,
+            duration: animation.duration,
+            stagger: animation.stagger,
+            ease: animation.ease,
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 70%',
+              toggleActions: 'play none none reverse',
+            },
+          })
+        } else {
+          gsap.from(items, {
+            y: 40,
+            opacity: 0,
+            duration: animation.duration * 0.5,
+            stagger: animation.stagger,
+            ease: animation.ease,
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 70%',
+              toggleActions: 'play none none reverse',
+            },
+          })
+        }
       }
     })
 
     return () => mm.revert()
-  }, [viewMode])
+  }, [viewMode, theme])
 
   const images = data.images || []
   if (images.length === 0) return null

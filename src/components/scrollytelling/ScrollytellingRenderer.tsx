@@ -9,13 +9,22 @@ import { VideoSection } from './sections/VideoSection'
 import { AudioSection } from './sections/AudioSection'
 import { FactBox } from './sections/FactBox'
 import { Gallery } from './sections/Gallery'
+import { StickyPortrait } from './sections/StickyPortrait'
+import { HorizontalImageStrip } from './sections/HorizontalImageStrip'
+import { RecipeCard } from './sections/RecipeCard'
+import { CountUpFact } from './sections/CountUpFact'
+import { NumberedStop } from './sections/NumberedStop'
+import { InteractiveQuiz } from './sections/InteractiveQuiz'
 import { ProgressBar } from './ProgressBar'
+import { ScrollyThemeProvider } from './ScrollyThemeContext'
+import { type ScrollyThemeName } from './theme-config'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface ScrollytellingRendererProps {
   article: {
     _id: string
     title: string
+    scrollyTheme?: ScrollyThemeName
     sections?: any[]
     tags?: { _id: string; title: string }[]
     author?: { _id: string; name: string; bio?: string }
@@ -32,12 +41,19 @@ const SECTION_MAP: Record<string, React.ComponentType<{ data: any; index: number
   audioSection: AudioSection,
   factBox: FactBox,
   gallery: Gallery,
+  stickyPortrait: StickyPortrait,
+  horizontalImageStrip: HorizontalImageStrip,
+  recipeCard: RecipeCard,
+  countUpFact: CountUpFact,
+  numberedStop: NumberedStop,
+  interactiveQuiz: InteractiveQuiz,
 }
 
 export function ScrollytellingRenderer({ article }: ScrollytellingRendererProps) {
   const sections = article.sections || []
 
   return (
+    <ScrollyThemeProvider theme={article.scrollyTheme}>
     <article className="relative">
       <ProgressBar />
 
@@ -141,5 +157,6 @@ export function ScrollytellingRenderer({ article }: ScrollytellingRendererProps)
         </div>
       </footer>
     </article>
+    </ScrollyThemeProvider>
   )
 }

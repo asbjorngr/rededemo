@@ -23,6 +23,7 @@ export const ARTICLE_BY_SLUG_QUERY = defineQuery(
     heroImage,
     body,
     sections,
+    scrollyTheme,
     tags[]->{ _id, title, slug },
     edition->{ _id, title, number, year },
     author->{ _id, name, bio, portrait }

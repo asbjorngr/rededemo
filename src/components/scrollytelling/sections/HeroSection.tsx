@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import { gsap, ScrollTrigger } from '@/lib/gsap-config'
+import { useScrollyTheme } from '../ScrollyThemeContext'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface HeroSectionProps {
@@ -23,12 +24,13 @@ export function HeroSection({ data }: HeroSectionProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const metaRef = useRef<HTMLDivElement>(null)
+  const theme = useScrollyTheme()
 
   useEffect(() => {
     const mm = gsap.matchMedia()
+    const { animation } = theme
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      // Pin the hero — content scrolls OVER it
       if (sectionRef.current) {
         ScrollTrigger.create({
           trigger: sectionRef.current,
@@ -39,30 +41,28 @@ export function HeroSection({ data }: HeroSectionProps) {
         })
       }
 
-      // Title reveal
       if (titleRef.current) {
         gsap.from(titleRef.current, {
-          y: 50,
+          y: animation.heroTitleY,
           opacity: 0,
-          duration: 1.2,
-          ease: 'power3.out',
+          duration: animation.duration,
+          ease: animation.heroTitleEase,
         })
       }
 
-      // Meta reveal
       if (metaRef.current) {
         gsap.from(metaRef.current, {
           y: 20,
           opacity: 0,
-          duration: 1,
-          delay: 0.4,
-          ease: 'power3.out',
+          duration: animation.duration * 0.7,
+          delay: animation.duration * 0.3,
+          ease: animation.ease,
         })
       }
     })
 
     return () => mm.revert()
-  }, [])
+  }, [theme])
 
   // Use hotspot for object-position if available
   const hotspot = data.image?.hotspot
@@ -97,7 +97,8 @@ export function HeroSection({ data }: HeroSectionProps) {
         {data.title && (
           <h1
             ref={titleRef}
-            className="max-w-5xl font-display text-4xl leading-[1.05] text-gold md:text-5xl lg:text-[4.5rem] xl:text-[5.5rem]"
+            className="max-w-5xl font-display text-4xl leading-[1.05] md:text-5xl lg:text-[4.5rem] xl:text-[5.5rem]"
+            style={{ color: theme.colors.accent }}
           >
             {data.title}
           </h1>

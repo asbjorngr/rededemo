@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import { gsap } from '@/lib/gsap-config'
 import { PortableText } from '@portabletext/react'
+import { useScrollyTheme } from '../ScrollyThemeContext'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface TextWithImageProps {
@@ -55,6 +56,10 @@ function markQuoteBlocks(blocks: any[]): Set<number> {
 }
 
 function TextBlocks({ blocks, styledQuoteIndices, allBlocks }: { blocks: any[]; styledQuoteIndices: Set<number>; allBlocks: any[] }) {
+  const theme = useScrollyTheme()
+  const accentWithOpacity = `rgba(${theme.colors.accentRgb}, 0.8)`
+  const borderAccent = `rgba(${theme.colors.accentRgb}, 0.5)`
+
   return (
     <div className="px-6 py-14 lg:px-16 lg:py-20">
       <div className="mx-auto max-w-[680px]">
@@ -67,7 +72,7 @@ function TextBlocks({ blocks, styledQuoteIndices, allBlocks }: { blocks: any[]; 
 
                 if (isInlineQuote(value) && styledQuoteIndices.has(blockIndex)) {
                   return (
-                    <blockquote className="my-8 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
+                    <blockquote className="my-8 border-l-2 pl-6 font-display text-xl italic leading-relaxed lg:text-2xl" style={{ borderColor: borderAccent, color: accentWithOpacity }}>
                       {children}
                     </blockquote>
                   )
@@ -96,7 +101,7 @@ function TextBlocks({ blocks, styledQuoteIndices, allBlocks }: { blocks: any[]; 
                 </h3>
               ),
               blockquote: ({ children }) => (
-                <blockquote className="my-10 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
+                <blockquote className="my-10 border-l-2 pl-6 font-display text-xl italic leading-relaxed lg:text-2xl" style={{ borderColor: borderAccent, color: accentWithOpacity }}>
                   {children}
                 </blockquote>
               ),
@@ -120,20 +125,21 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
   const ledeRef = useRef<HTMLDivElement>(null)
+  const theme = useScrollyTheme()
 
   const isFirstTextSection = index === 1 // Right after hero (index 0)
 
   useEffect(() => {
     const mm = gsap.matchMedia()
+    const { animation } = theme
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      // Cinematic image reveal
       if (imageRef.current) {
         gsap.from(imageRef.current, {
           scale: 1.06,
           opacity: 0.4,
-          duration: 1.4,
-          ease: 'power2.out',
+          duration: animation.duration,
+          ease: animation.ease,
           scrollTrigger: {
             trigger: imageRef.current,
             start: 'top 85%',
@@ -142,13 +148,12 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
         })
       }
 
-      // Lede — big intro text animation
       if (ledeRef.current) {
         gsap.from(ledeRef.current, {
-          y: 60,
+          y: animation.heroTitleY,
           opacity: 0,
-          duration: 1.2,
-          ease: 'power3.out',
+          duration: animation.duration * 0.85,
+          ease: animation.ease,
           scrollTrigger: {
             trigger: ledeRef.current,
             start: 'top 80%',
@@ -157,15 +162,14 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
         })
       }
 
-      // Body text paragraphs stagger in
       if (sectionRef.current) {
         const elements = sectionRef.current.querySelectorAll('[data-text-block] p, [data-text-block] blockquote, [data-text-block] h2, [data-text-block] h3')
         gsap.from(elements, {
           y: 25,
           opacity: 0,
-          duration: 0.6,
-          stagger: 0.06,
-          ease: 'power2.out',
+          duration: animation.duration * 0.45,
+          stagger: animation.stagger,
+          ease: animation.ease,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 80%',
@@ -176,7 +180,7 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
     })
 
     return () => mm.revert()
-  }, [])
+  }, [theme])
 
   const bgColor = data.backgroundColor || '#003865'
   const hotspot = data.image?.hotspot
@@ -244,7 +248,7 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
             <h2 className="font-display text-2xl leading-tight text-white lg:text-3xl">
               {data.title}
             </h2>
-            <div className="mt-4 h-px w-16 bg-gold/40" />
+            <div className="mt-4 h-px w-16" style={{ backgroundColor: `rgba(${theme.colors.accentRgb}, 0.4)` }} />
           </div>
         </div>
       )}
@@ -258,7 +262,7 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
               components={{
                 block: {
                   normal: ({ children }) => (
-                    <p className="font-display text-2xl leading-[1.3] text-gold md:text-3xl lg:text-[2.75rem] lg:leading-[1.25] xl:text-[3.25rem]">
+                    <p className="font-display text-2xl leading-[1.3] md:text-3xl lg:text-[2.75rem] lg:leading-[1.25] xl:text-[3.25rem]" style={{ color: theme.colors.accent }}>
                       {children}
                     </p>
                   ),
