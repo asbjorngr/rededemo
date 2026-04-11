@@ -32,3 +32,19 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Infinite horizontal scroll */
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll-left {
+    animation: none;
+  }
+}

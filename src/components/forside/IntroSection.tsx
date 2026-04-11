@@ -28,7 +28,7 @@ export function IntroSection() {
           Rede utgave 2 — 2026
         </p>
         <h1 className="max-w-4xl font-display text-5xl leading-[1.1] text-gold md:text-7xl lg:text-8xl">
-          Ta deg tid til å slappe av mellom slagene
+          Ta deg tid til å slappe av litt
         </h1>
       </div>
 
