@@ -54,10 +54,71 @@ function markQuoteBlocks(blocks: any[]): Set<number> {
   return styledQuotes
 }
 
+function TextBlocks({ blocks, styledQuoteIndices, allBlocks }: { blocks: any[]; styledQuoteIndices: Set<number>; allBlocks: any[] }) {
+  return (
+    <div className="px-6 py-14 lg:px-16 lg:py-20">
+      <div className="mx-auto max-w-[680px]">
+        <PortableText
+          value={blocks}
+          components={{
+            block: {
+              normal: ({ children, value }) => {
+                const blockIndex = allBlocks.indexOf(value)
+
+                if (isInlineQuote(value) && styledQuoteIndices.has(blockIndex)) {
+                  return (
+                    <blockquote className="my-8 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
+                      {children}
+                    </blockquote>
+                  )
+                }
+                if (isInlineQuote(value)) {
+                  return (
+                    <p className="mb-6 text-[17px] italic leading-[1.75] text-white/60 lg:text-[18px]">
+                      {children}
+                    </p>
+                  )
+                }
+                return (
+                  <p className="mb-6 text-[17px] leading-[1.75] text-white/80 lg:text-[18px]">
+                    {children}
+                  </p>
+                )
+              },
+              h2: ({ children }) => (
+                <h2 className="mb-6 mt-14 font-display text-3xl leading-tight text-white lg:text-4xl">
+                  {children}
+                </h2>
+              ),
+              h3: ({ children }) => (
+                <h3 className="mb-4 mt-10 font-heading text-xl text-white lg:text-2xl">
+                  {children}
+                </h3>
+              ),
+              blockquote: ({ children }) => (
+                <blockquote className="my-10 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
+                  {children}
+                </blockquote>
+              ),
+            },
+            marks: {
+              em: ({ children }) => (
+                <em className="italic text-white/70">{children}</em>
+              ),
+              strong: ({ children }) => (
+                <strong className="font-bold text-white">{children}</strong>
+              ),
+            },
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
 export function TextWithImage({ data, index }: TextWithImageProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
-  const textRef = useRef<HTMLDivElement>(null)
   const ledeRef = useRef<HTMLDivElement>(null)
 
   const isFirstTextSection = index === 1 // Right after hero (index 0)
@@ -97,8 +158,8 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
       }
 
       // Body text paragraphs stagger in
-      if (textRef.current) {
-        const elements = textRef.current.querySelectorAll('p, blockquote, h2, h3')
+      if (sectionRef.current) {
+        const elements = sectionRef.current.querySelectorAll('[data-text-block] p, [data-text-block] blockquote, [data-text-block] h2, [data-text-block] h3')
         gsap.from(elements, {
           y: 25,
           opacity: 0,
@@ -106,7 +167,7 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
           stagger: 0.06,
           ease: 'power2.out',
           scrollTrigger: {
-            trigger: textRef.current,
+            trigger: sectionRef.current,
             start: 'top 80%',
             toggleActions: 'play none none reverse',
           },
@@ -135,6 +196,44 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
 
   // Pre-calculate which quotes get styled treatment
   const styledQuoteIndices = markQuoteBlocks(bodyBlocks)
+
+  // Split body text around image: text before image + image + text after
+  // Image goes after ~40% of blocks, or after 3 blocks minimum
+  const hasImage = !!data.image?.asset
+  const splitPoint = hasImage && bodyBlocks.length > 4
+    ? Math.max(3, Math.floor(bodyBlocks.length * 0.4))
+    : bodyBlocks.length
+
+  const textBefore = bodyBlocks.slice(0, splitPoint)
+  const textAfter = bodyBlocks.slice(splitPoint)
+
+  const imageElement = hasImage && (
+    <div className="px-6 py-4 lg:px-16 lg:py-8">
+      <div
+        ref={imageRef}
+        className="relative mx-auto max-w-5xl overflow-hidden"
+      >
+        <div className="relative aspect-[16/10] w-full">
+          <Image
+            src={urlFor(data.image!).width(1400).height(875).fit('crop').url()}
+            alt={data.image!.alt || ''}
+            fill
+            className="object-cover"
+            style={{ objectPosition }}
+            sizes="(max-width: 1024px) 100vw, 80vw"
+          />
+        </div>
+        {(data.image!.caption || data.image!.photographer) && (
+          <p className="mt-3 text-center font-heading text-[10px] uppercase tracking-[0.3em] text-white/40">
+            {data.image!.caption}
+            {data.image!.photographer && (
+              <>{data.image!.caption ? ' — ' : ''}Foto: {data.image!.photographer}</>
+            )}
+          </p>
+        )}
+      </div>
+    </div>
+  )
 
   return (
     <section
@@ -174,99 +273,20 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
         </div>
       )}
 
-      {/* Cinematic full-width image */}
-      {data.image?.asset && (
-        <div className="px-6 pt-10 lg:px-16 lg:pt-14">
-          <div
-            ref={imageRef}
-            className="relative mx-auto max-w-5xl overflow-hidden"
-          >
-            <div className="relative aspect-[16/10] w-full">
-              <Image
-                src={urlFor(data.image).width(1400).height(875).fit('crop').url()}
-                alt={data.image.alt || ''}
-                fill
-                className="object-cover"
-                style={{ objectPosition }}
-                sizes="(max-width: 1024px) 100vw, 80vw"
-              />
-            </div>
-            {(data.image.caption || data.image.photographer) && (
-              <p className="mt-3 text-center font-heading text-[10px] uppercase tracking-[0.3em] text-white/40">
-                {data.image.caption}
-                {data.image.photographer && (
-                  <>{data.image.caption ? ' — ' : ''}Foto: {data.image.photographer}</>
-                )}
-              </p>
-            )}
-          </div>
+      {/* Text before image */}
+      {textBefore.length > 0 && (
+        <div data-text-block>
+          <TextBlocks blocks={textBefore} styledQuoteIndices={styledQuoteIndices} allBlocks={bodyBlocks} />
         </div>
       )}
 
-      {/* Body text — centered prose with smart quote detection */}
-      {bodyBlocks.length > 0 && (
-        <div
-          ref={textRef}
-          className="px-6 py-14 lg:px-16 lg:py-20"
-        >
-          <div className="mx-auto max-w-[680px]">
-            <PortableText
-              value={bodyBlocks}
-              components={{
-                block: {
-                  normal: ({ children, value }) => {
-                    // Find this block's index in bodyBlocks
-                    const blockIndex = bodyBlocks.indexOf(value)
+      {/* Image — placed between text halves for visual rhythm */}
+      {imageElement}
 
-                    // Only style first quote in a consecutive run
-                    if (isInlineQuote(value) && styledQuoteIndices.has(blockIndex)) {
-                      return (
-                        <blockquote className="my-8 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
-                          {children}
-                        </blockquote>
-                      )
-                    }
-                    // Consecutive quotes after the first render as subtle italic
-                    if (isInlineQuote(value)) {
-                      return (
-                        <p className="mb-6 text-[17px] italic leading-[1.75] text-white/60 lg:text-[18px]">
-                          {children}
-                        </p>
-                      )
-                    }
-                    return (
-                      <p className="mb-6 text-[17px] leading-[1.75] text-white/80 lg:text-[18px]">
-                        {children}
-                      </p>
-                    )
-                  },
-                  h2: ({ children }) => (
-                    <h2 className="mb-6 mt-14 font-display text-3xl leading-tight text-white lg:text-4xl">
-                      {children}
-                    </h2>
-                  ),
-                  h3: ({ children }) => (
-                    <h3 className="mb-4 mt-10 font-heading text-xl text-white lg:text-2xl">
-                      {children}
-                    </h3>
-                  ),
-                  blockquote: ({ children }) => (
-                    <blockquote className="my-10 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
-                      {children}
-                    </blockquote>
-                  ),
-                },
-                marks: {
-                  em: ({ children }) => (
-                    <em className="italic text-white/70">{children}</em>
-                  ),
-                  strong: ({ children }) => (
-                    <strong className="font-bold text-white">{children}</strong>
-                  ),
-                },
-              }}
-            />
-          </div>
+      {/* Text after image */}
+      {textAfter.length > 0 && (
+        <div data-text-block>
+          <TextBlocks blocks={textAfter} styledQuoteIndices={styledQuoteIndices} allBlocks={bodyBlocks} />
         </div>
       )}
     </section>
