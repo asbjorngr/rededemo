@@ -80,7 +80,7 @@ export function ScrollytellingRenderer({ article, relatedArticles = [] }: Scroll
         return (
           <Component
             key={section._key || index}
-            data={{ ...section, backgroundColor: section.backgroundColor || bg }}
+            data={{ ...section, backgroundColor: bg }}
             index={index}
           />
         )
