@@ -17,6 +17,7 @@ export default async function ArticlePage({ params }: PageProps) {
     slug: { current: string }
     type: 'scrollytelling' | 'standard'
     scrollyTheme?: 'warm' | 'documentary' | 'playful'
+    scrollyBackground?: string
     teaser?: string
     heroImage?: { asset: { _ref: string }; alt?: string; photographer?: string }
     body?: unknown[]

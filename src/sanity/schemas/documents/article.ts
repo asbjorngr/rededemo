@@ -108,6 +108,23 @@ export const article = defineType({
       description: 'Velg fargetema for scrollytelling-opplevelsen',
     }),
     defineField({
+      name: 'scrollyBackground',
+      title: 'Bakgrunnsfarge',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Mørk marineblå', value: '#003865' },
+          { title: 'Magenta', value: '#AA0061' },
+          { title: 'Lilla', value: '#6B3077' },
+          { title: 'Teal', value: '#048A7B' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: '#003865',
+      hidden: ({ parent }) => parent?.type !== 'scrollytelling',
+      description: 'Bakgrunnsfarge for hele scrollytelling-artikkelen',
+    }),
+    defineField({
       name: 'sections',
       title: 'Seksjoner',
       type: 'array',

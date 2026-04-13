@@ -38,6 +38,7 @@ interface ScrollytellingRendererProps {
     _id: string
     title: string
     scrollyTheme?: ScrollyThemeName
+    scrollyBackground?: string
     sections?: any[]
     tags?: { _id: string; title: string }[]
     author?: { _id: string; name: string; bio?: string }
@@ -65,6 +66,7 @@ const SECTION_MAP: Record<string, React.ComponentType<{ data: any; index: number
 
 export function ScrollytellingRenderer({ article, relatedArticles = [] }: ScrollytellingRendererProps) {
   const sections = article.sections || []
+  const bg = article.scrollyBackground || '#003865'
 
   return (
     <ScrollyThemeProvider theme={article.scrollyTheme}>
@@ -78,7 +80,7 @@ export function ScrollytellingRenderer({ article, relatedArticles = [] }: Scroll
         return (
           <Component
             key={section._key || index}
-            data={section}
+            data={{ ...section, backgroundColor: section.backgroundColor || bg }}
             index={index}
           />
         )
@@ -88,7 +90,7 @@ export function ScrollytellingRenderer({ article, relatedArticles = [] }: Scroll
       <footer className="relative">
         {/* Related articles */}
         {relatedArticles.length > 0 && (
-          <div className="bg-navy px-6 py-16 lg:px-16 lg:py-24">
+          <div className="px-6 py-16 lg:px-16 lg:py-24" style={{ backgroundColor: bg }}>
             <div className="mx-auto max-w-[1400px]">
               <h2 className="mb-10 font-heading text-[11px] uppercase tracking-[0.3em] text-white/40">
                 Les også
@@ -110,7 +112,7 @@ export function ScrollytellingRenderer({ article, relatedArticles = [] }: Scroll
                           sizes="(max-width: 768px) 70vw, 28vw"
                         />
                       ) : (
-                        <div className="h-full w-full bg-navy" />
+                        <div className="h-full w-full" style={{ backgroundColor: bg }} />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-5">
@@ -132,7 +134,7 @@ export function ScrollytellingRenderer({ article, relatedArticles = [] }: Scroll
         )}
 
         {/* Back to magazine */}
-        <div className="bg-navy pb-16 pt-4 text-center">
+        <div className="pb-16 pt-4 text-center" style={{ backgroundColor: bg }}>
           <Link
             href="/"
             className="inline-flex items-center gap-3 font-heading text-[11px] uppercase tracking-[0.3em] text-white/40 transition-colors hover:text-white/70"
