@@ -35,7 +35,7 @@ export function IntroSection() {
         <p className="mb-10 font-heading text-[11px] uppercase tracking-[0.5em] text-white/50 lg:mb-12">
           Rede utgave 2 — 2026
         </p>
-        <h1 className="max-w-4xl font-display text-5xl leading-[1.1] text-gold md:text-7xl lg:text-8xl">
+        <h1 className="max-w-4xl font-display text-5xl leading-[1.1] text-white md:text-7xl lg:text-8xl">
           Ta deg tid til å slappe av litt
         </h1>
 
