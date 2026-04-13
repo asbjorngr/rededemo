@@ -56,7 +56,7 @@ function TextBlocks({ blocks, styledQuoteIndices, allBlocks }: { blocks: any[]; 
 
                 if (isInlineQuote(value) && styledQuoteIndices.has(blockIndex)) {
                   return (
-                    <blockquote className="my-8 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
+                    <blockquote className="my-8 border-l-2 border-[#ff9cca]/40 pl-6 font-display text-xl italic leading-relaxed text-[#ff9cca]/80 lg:text-2xl">
                       {children}
                     </blockquote>
                   )
@@ -85,7 +85,7 @@ function TextBlocks({ blocks, styledQuoteIndices, allBlocks }: { blocks: any[]; 
                 </h3>
               ),
               blockquote: ({ children }) => (
-                <blockquote className="my-10 border-l-2 border-gold/50 pl-6 font-display text-xl italic leading-relaxed text-gold/80 lg:text-2xl">
+                <blockquote className="my-10 border-l-2 border-[#ff9cca]/40 pl-6 font-display text-xl italic leading-relaxed text-[#ff9cca]/80 lg:text-2xl">
                   {children}
                 </blockquote>
               ),
@@ -247,7 +247,7 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
               components={{
                 block: {
                   normal: ({ children }) => (
-                    <p className="font-display text-2xl leading-[1.3] text-gold md:text-3xl lg:text-[2.75rem] lg:leading-[1.25] xl:text-[3.25rem]">
+                    <p className="font-display text-2xl leading-[1.3] text-white md:text-3xl lg:text-[2.75rem] lg:leading-[1.25] xl:text-[3.25rem]">
                       {children}
                     </p>
                   ),

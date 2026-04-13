@@ -54,7 +54,7 @@ export function FactBox({ data }: FactBoxProps) {
         {/* Decorative title */}
         {data.title && (
           <div className="mb-8 lg:mb-10">
-            <h3 className="font-display text-2xl leading-tight text-gold lg:text-3xl">
+            <h3 className="font-display text-2xl leading-tight text-white lg:text-3xl">
               {data.title}
             </h3>
             <div className="mt-4 h-px w-16 bg-gold/30" />

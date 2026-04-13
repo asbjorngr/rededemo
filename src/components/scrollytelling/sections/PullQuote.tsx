@@ -58,7 +58,7 @@ export function PullQuote({ data }: PullQuoteProps) {
 
       <blockquote ref={quoteRef} className="relative z-10 max-w-5xl text-center">
         {/* Quote text — word-by-word animation */}
-        <p className="font-display text-3xl leading-[1.2] text-gold md:text-4xl lg:text-5xl xl:text-[3.5rem] xl:leading-[1.2]">
+        <p className="font-display text-3xl leading-[1.2] text-white md:text-4xl lg:text-5xl xl:text-[3.5rem] xl:leading-[1.2]">
           &ldquo;
           {words.map((word, i) => (
             <span key={i} data-word className="inline-block">

@@ -97,7 +97,7 @@ export function HeroSection({ data }: HeroSectionProps) {
         {data.title && (
           <h1
             ref={titleRef}
-            className="max-w-5xl font-display text-4xl leading-[1.05] text-gold md:text-5xl lg:text-[4.5rem] xl:text-[5.5rem]"
+            className="max-w-5xl font-display text-4xl leading-[1.05] text-white md:text-5xl lg:text-[4.5rem] xl:text-[5.5rem]"
           >
             {data.title}
           </h1>

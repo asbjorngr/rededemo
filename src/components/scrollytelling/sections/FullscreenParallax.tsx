@@ -121,7 +121,7 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
                 block: {
                   normal: ({ children }) =>
                     shortTitle ? (
-                      <h2 className="font-display text-4xl leading-[1.1] text-gold md:text-5xl lg:text-6xl xl:text-7xl">
+                      <h2 className="font-display text-4xl leading-[1.1] text-white md:text-5xl lg:text-6xl xl:text-7xl">
                         {children}
                       </h2>
                     ) : (
@@ -130,7 +130,7 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
                       </p>
                     ),
                   h2: ({ children }) => (
-                    <h2 className="mb-6 font-display text-4xl leading-tight text-gold lg:text-5xl xl:text-6xl">
+                    <h2 className="mb-6 font-display text-4xl leading-tight text-white lg:text-5xl xl:text-6xl">
                       {children}
                     </h2>
                   ),
