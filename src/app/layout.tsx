@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   },
   description:
     'Rede er TOBBs medlemsmagasin med historier om bolig, nabolag og livet i Trondheim.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 }
 
 export default function RootLayout({
