@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { sanityFetch } from '@/sanity/lib/live'
-import { ARTICLE_BY_SLUG_QUERY } from '@/sanity/lib/queries'
+import { ARTICLE_BY_SLUG_QUERY, RELATED_ARTICLES_QUERY } from '@/sanity/lib/queries'
 import { ScrollytellingRenderer } from '@/components/scrollytelling/ScrollytellingRenderer'
 import { StandardArticle } from '@/components/article/StandardArticle'
 
@@ -28,8 +28,18 @@ export default async function ArticlePage({ params }: PageProps) {
 
   if (!article) notFound()
 
+  const relatedArticles = await sanityFetch<{
+    _id: string
+    title: string
+    slug: { current: string }
+    type: string
+    teaser?: string
+    heroImage?: { asset: { _ref: string }; alt?: string }
+    tags?: { _id: string; title: string }[]
+  }[]>({ query: RELATED_ARTICLES_QUERY, params: { id: article._id } })
+
   if (article.type === 'scrollytelling') {
-    return <ScrollytellingRenderer article={article} />
+    return <ScrollytellingRenderer article={article} relatedArticles={relatedArticles || []} />
   }
 
   return <StandardArticle article={article} />

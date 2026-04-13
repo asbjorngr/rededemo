@@ -47,64 +47,57 @@ export function FactBox({ data }: FactBoxProps) {
   return (
     <section
       ref={sectionRef}
-      className="px-6 py-16 lg:px-16 lg:py-24"
+      className="px-6 py-20 lg:px-16 lg:py-32"
       style={{ backgroundColor: bgColor }}
     >
-      <div className="mx-auto max-w-3xl">
-        <div
-          ref={boxRef}
-          className="relative overflow-hidden rounded-sm border border-gold/20 bg-gold/5 p-8 lg:p-12"
-        >
-          {/* Gold accent line at top */}
-          <div className="absolute inset-x-0 top-0 h-[2px] bg-gold/40" />
-
-          {data.icon && (
-            <span className="mb-4 block text-3xl">{data.icon}</span>
-          )}
-
-          {data.title && (
-            <h3 className="mb-6 font-heading text-[11px] uppercase tracking-[0.4em] text-gold">
+      <div ref={boxRef} className="mx-auto max-w-2xl">
+        {/* Decorative title */}
+        {data.title && (
+          <div className="mb-8 lg:mb-10">
+            <h3 className="font-display text-2xl leading-tight text-gold lg:text-3xl">
               {data.title}
             </h3>
-          )}
+            <div className="mt-4 h-px w-16 bg-gold/30" />
+          </div>
+        )}
 
-          {data.content && (
-            <div className="fact-box-content">
-              <PortableText
-                value={data.content}
-                components={{
-                  block: {
-                    normal: ({ children }) => (
-                      <p className="mb-4 text-[16px] leading-[1.7] text-white/75">
-                        {children}
-                      </p>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="mb-3 mt-6 font-heading text-lg text-white">
-                        {children}
-                      </h3>
-                    ),
-                  },
-                  list: {
-                    bullet: ({ children }) => (
-                      <ul className="mb-4 list-none space-y-2 pl-0">
-                        {children}
-                      </ul>
-                    ),
-                  },
-                  listItem: {
-                    bullet: ({ children }) => (
-                      <li className="flex items-baseline gap-3 text-[15px] text-white/70">
-                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold/60" />
-                        {children}
-                      </li>
-                    ),
-                  },
-                }}
-              />
-            </div>
-          )}
-        </div>
+        {/* Body text — open, no box */}
+        {data.content && (
+          <div className="fact-box-content">
+            <PortableText
+              value={data.content}
+              components={{
+                block: {
+                  normal: ({ children }) => (
+                    <p className="mb-5 text-[17px] leading-[1.8] text-white/70">
+                      {children}
+                    </p>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="mb-3 mt-8 font-heading text-lg text-white">
+                      {children}
+                    </h3>
+                  ),
+                },
+                list: {
+                  bullet: ({ children }) => (
+                    <ul className="mb-5 list-none space-y-3 pl-0">
+                      {children}
+                    </ul>
+                  ),
+                },
+                listItem: {
+                  bullet: ({ children }) => (
+                    <li className="flex items-baseline gap-3 text-[16px] leading-[1.7] text-white/65">
+                      <span className="mt-[0.35em] h-1.5 w-1.5 shrink-0 rounded-full bg-gold/50" />
+                      {children}
+                    </li>
+                  ),
+                },
+              }}
+            />
+          </div>
+        )}
       </div>
     </section>
   )

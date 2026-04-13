@@ -40,13 +40,13 @@ export function StoriesGrid({ articles }: StoriesGridProps) {
   return (
     <section className="px-6 py-20">
       <div className="mx-auto max-w-[1400px]">
-        {/* Header with tags */}
-        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="font-heading text-[11px] uppercase tracking-[0.3em] text-white/40">
+        {/* Header with tags — centered */}
+        <div className="mb-12 flex flex-col items-center gap-6">
+          <h2 className="font-display text-3xl text-white lg:text-4xl">
             Flere saker
           </h2>
           {allTags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               <button
                 onClick={() => setActiveTag(null)}
                 className={`cursor-pointer rounded-full border px-3 py-1 font-heading text-[10px] uppercase tracking-[0.2em] transition-colors ${
@@ -74,62 +74,80 @@ export function StoriesGrid({ articles }: StoriesGridProps) {
           )}
         </div>
 
-        {/* Asymmetric grid */}
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Grid — 2+1 pattern, equal height */}
+        <div className="grid auto-rows-[1fr] gap-5 sm:grid-cols-3">
           {filtered.map((article, index) => {
-            // Vary card sizes for editorial feel
-            const isLarge = index === 0 || index === 3
+            // 2+1 pattern: every row of 3, first card spans 2 cols
+            const isWide = index % 3 === 0
             return (
               <Link
                 key={article._id}
                 href={`/artikler/${article.slug.current}`}
-                className={`group block ${isLarge ? 'sm:col-span-2 lg:col-span-2' : ''}`}
+                className={`group block ${isWide ? 'sm:col-span-2' : ''}`}
               >
-                <div
-                  className={`relative overflow-hidden rounded-lg ${
-                    isLarge ? 'aspect-[16/9]' : 'aspect-[4/3]'
-                  }`}
-                >
+                <div className="relative h-full min-h-[280px] overflow-hidden rounded-lg sm:min-h-[320px] lg:min-h-[380px]">
                   {article.heroImage?.asset ? (
                     <Image
                       src={urlFor(article.heroImage)
-                        .width(isLarge ? 1000 : 600)
-                        .height(isLarge ? 563 : 450)
+                        .width(isWide ? 1000 : 600)
+                        .height(isWide ? 500 : 500)
+                        .fit('crop')
                         .url()}
                       alt={article.heroImage.alt || article.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                       sizes={
-                        isLarge
+                        isWide
                           ? '(max-width: 640px) 100vw, 66vw'
-                          : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                          : '(max-width: 640px) 100vw, 33vw'
                       }
                     />
                   ) : (
                     <div className="h-full w-full bg-navy-light" />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 lg:p-6">
+
+                  {/* Default gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-500 group-hover:opacity-0" />
+
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/70 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+                  {/* Default content — tag + title */}
+                  <div className="absolute inset-x-0 bottom-0 p-5 transition-opacity duration-500 group-hover:opacity-0 lg:p-6">
                     {article.tags?.[0] && (
                       <span className="mb-2 inline-block font-heading text-[10px] uppercase tracking-[0.3em] text-gold">
                         {article.tags[0].title}
                       </span>
                     )}
-                    <h3
-                      className={`font-display leading-snug text-white transition-colors duration-300 group-hover:text-gold ${
-                        isLarge ? 'text-2xl lg:text-3xl' : 'text-lg lg:text-xl'
-                      }`}
-                    >
+                    <h3 className="font-display text-lg leading-snug text-white lg:text-xl">
                       {article.title}
                     </h3>
                   </div>
-                </div>
 
-                {article.teaser && (
-                  <p className="mt-3 text-sm leading-relaxed text-white/50 line-clamp-2">
-                    {article.teaser}
-                  </p>
-                )}
+                  {/* Hover content — title + teaser + tags */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-5 opacity-0 transition-opacity duration-500 group-hover:opacity-100 lg:p-6">
+                    <h3 className="font-display text-lg leading-snug text-gold lg:text-xl">
+                      {article.title}
+                    </h3>
+                    {article.teaser && (
+                      <p className="mt-3 text-sm leading-relaxed text-white/70 line-clamp-3">
+                        {article.teaser}
+                      </p>
+                    )}
+                    {article.tags && article.tags.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {article.tags.map((tag) => (
+                          <span
+                            key={tag._id}
+                            className="rounded-full border border-white/20 px-2.5 py-0.5 font-heading text-[10px] uppercase tracking-[0.2em] text-white/60"
+                          >
+                            {tag.title}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </Link>
             )
           })}

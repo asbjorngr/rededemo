@@ -21,27 +21,14 @@ export function PullQuote({ data }: PullQuoteProps) {
     const mm = gsap.matchMedia()
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      if (quoteRef.current) {
-        // Each word fades in sequentially for drama
+      if (quoteRef.current && sectionRef.current) {
         const words = quoteRef.current.querySelectorAll('[data-word]')
         if (words.length > 0) {
           gsap.from(words, {
             opacity: 0.15,
-            duration: 0.4,
-            stagger: 0.03,
+            duration: 0.8,
+            stagger: 0.06,
             ease: 'power2.out',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top 50%',
-              toggleActions: 'play none none reverse',
-            },
-          })
-        } else {
-          gsap.from(quoteRef.current, {
-            scale: 0.94,
-            opacity: 0,
-            duration: 1.4,
-            ease: 'power3.out',
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 50%',
@@ -61,7 +48,8 @@ export function PullQuote({ data }: PullQuoteProps) {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-navy px-6 py-24"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-24"
+      style={{ backgroundColor: data.backgroundColor || '#003865' }}
     >
       {/* Large decorative quote mark — background element */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-display text-[30vw] leading-none text-white/[0.03]">

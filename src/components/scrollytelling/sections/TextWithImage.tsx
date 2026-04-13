@@ -29,28 +29,17 @@ function isInlineQuote(block: any): boolean {
 }
 
 /**
- * Pre-process blocks: pick max 2 quotes to style as gold blockquotes.
- * Spread them out — first and one near the middle. The rest render as
- * subtle italic to avoid walls of gold.
+ * Pre-process blocks: pick only the first quote to style as gold blockquote.
+ * The rest render as subtle italic to avoid walls of gold.
  */
 function markQuoteBlocks(blocks: any[]): Set<number> {
-  const quoteIndices: number[] = []
-  for (let i = 0; i < blocks.length; i++) {
-    if (isInlineQuote(blocks[i])) quoteIndices.push(i)
-  }
-
   const styledQuotes = new Set<number>()
-  if (quoteIndices.length === 0) return styledQuotes
-
-  // Always style the first quote
-  styledQuotes.add(quoteIndices[0])
-
-  // If there are 3+ quotes, pick one near the middle
-  if (quoteIndices.length >= 3) {
-    const mid = Math.floor(quoteIndices.length / 2)
-    styledQuotes.add(quoteIndices[mid])
+  for (let i = 0; i < blocks.length; i++) {
+    if (isInlineQuote(blocks[i])) {
+      styledQuotes.add(i)
+      break // Only style the first quote
+    }
   }
-
   return styledQuotes
 }
 

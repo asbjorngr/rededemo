@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
+import { urlFor } from '@/sanity/lib/image'
 import { HeroSection } from './sections/HeroSection'
 import { TextWithImage } from './sections/TextWithImage'
 import { FullscreenParallax } from './sections/FullscreenParallax'
@@ -20,6 +22,17 @@ import { ScrollyThemeProvider } from './ScrollyThemeContext'
 import { type ScrollyThemeName } from './theme-config'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+interface RelatedArticle {
+  _id: string
+  title: string
+  slug: { current: string }
+  type: string
+  teaser?: string
+  heroImage?: { asset: { _ref: string }; alt?: string }
+  tags?: { _id: string; title: string }[]
+}
+
 interface ScrollytellingRendererProps {
   article: {
     _id: string
@@ -30,6 +43,7 @@ interface ScrollytellingRendererProps {
     author?: { _id: string; name: string; bio?: string }
     edition?: { _id: string; title: string; number: number; year: number }
   }
+  relatedArticles?: RelatedArticle[]
 }
 
 const SECTION_MAP: Record<string, React.ComponentType<{ data: any; index: number }>> = {
@@ -49,7 +63,7 @@ const SECTION_MAP: Record<string, React.ComponentType<{ data: any; index: number
   interactiveQuiz: InteractiveQuiz,
 }
 
-export function ScrollytellingRenderer({ article }: ScrollytellingRendererProps) {
+export function ScrollytellingRenderer({ article, relatedArticles = [] }: ScrollytellingRendererProps) {
   const sections = article.sections || []
 
   return (
@@ -70,90 +84,63 @@ export function ScrollytellingRenderer({ article }: ScrollytellingRendererProps)
         )
       })}
 
-      {/* Article footer — full width, editorial */}
-      <footer className="relative bg-mint">
-        <div className="px-6 py-20 lg:px-16 lg:py-28">
-          {/* Large "Rede" branding */}
-          <div className="mb-16 text-center">
-            <Link href="/" className="font-display text-7xl text-navy/15 lg:text-9xl">
-              Rede
-            </Link>
-          </div>
-
-          {/* Content grid */}
-          <div className="mx-auto grid max-w-5xl gap-12 lg:grid-cols-3">
-            {/* Meta */}
-            <div>
-              {article.edition && (
-                <>
-                  <h4 className="font-heading text-[10px] uppercase tracking-[0.3em] text-navy/40">
-                    Publisert i
-                  </h4>
-                  <p className="mt-1 font-display text-lg text-navy">
-                    Rede nr {article.edition.number} {article.edition.year}
-                  </p>
-                </>
-              )}
-            </div>
-
-            {/* Author */}
-            {article.author && (
-              <div>
-                <h4 className="font-heading text-[10px] uppercase tracking-[0.3em] text-navy/40">
-                  Tekst
-                </h4>
-                <p className="mt-1 font-display text-lg text-navy">
-                  {article.author.name}
-                </p>
-                {article.author.bio && (
-                  <p className="mt-2 text-sm leading-relaxed text-navy/60">
-                    {article.author.bio}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Share */}
-            <div>
-              <h4 className="font-heading text-[10px] uppercase tracking-[0.3em] text-navy/40">
-                Del artikkelen
-              </h4>
-              <div className="mt-3">
-                <button
-                  onClick={() => navigator.share?.({ title: article.title, url: window.location.href }).catch(() => {})}
-                  className="cursor-pointer font-heading text-xs uppercase tracking-wide text-navy/60 transition-colors hover:text-navy"
-                >
-                  Del
-                </button>
+      {/* Related articles + footer */}
+      <footer className="relative">
+        {/* Related articles */}
+        {relatedArticles.length > 0 && (
+          <div className="bg-navy px-6 py-16 lg:px-16 lg:py-24">
+            <div className="mx-auto max-w-[1400px]">
+              <h2 className="mb-10 font-heading text-[11px] uppercase tracking-[0.3em] text-white/40">
+                Les også
+              </h2>
+              <div className="flex justify-center gap-5">
+                {relatedArticles.map((a) => (
+                  <Link
+                    key={a._id}
+                    href={`/artikler/${a.slug.current}`}
+                    className="group w-full max-w-[360px]"
+                  >
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-lg">
+                      {a.heroImage?.asset ? (
+                        <Image
+                          src={urlFor(a.heroImage).width(400).height(530).fit('crop').url()}
+                          alt={a.heroImage.alt || a.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          sizes="(max-width: 768px) 70vw, 28vw"
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-navy" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 p-5">
+                        {a.tags?.[0] && (
+                          <span className="mb-2 inline-block font-heading text-[10px] uppercase tracking-[0.3em] text-gold">
+                            {a.tags[0].title}
+                          </span>
+                        )}
+                        <h3 className="font-display text-lg leading-snug text-white">
+                          {a.title}
+                        </h3>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
+        )}
 
-          {/* Tags */}
-          {article.tags && article.tags.length > 0 && (
-            <div className="mx-auto mt-12 flex max-w-5xl flex-wrap gap-2 border-t border-navy/10 pt-8">
-              {article.tags.map((tag) => (
-                <span
-                  key={tag._id}
-                  className="rounded-full border border-navy/15 px-3 py-1 font-heading text-[10px] uppercase tracking-[0.2em] text-navy/50"
-                >
-                  {tag.title}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Back to magazine */}
-          <div className="mt-16 text-center">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-3 font-heading text-[11px] uppercase tracking-[0.3em] text-navy/40 transition-colors hover:text-navy/70"
-            >
-              <span className="h-px w-8 bg-current" />
-              Tilbake til magasinet
-              <span className="h-px w-8 bg-current" />
-            </Link>
-          </div>
+        {/* Back to magazine */}
+        <div className="bg-navy pb-16 pt-4 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-3 font-heading text-[11px] uppercase tracking-[0.3em] text-white/40 transition-colors hover:text-white/70"
+          >
+            <span className="h-px w-8 bg-current" />
+            Tilbake til magasinet
+            <span className="h-px w-8 bg-current" />
+          </Link>
         </div>
       </footer>
     </article>

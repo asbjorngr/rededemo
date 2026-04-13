@@ -50,6 +50,37 @@ export const EDITION_QUERY = defineQuery(
   }`
 )
 
+export const RELATED_ARTICLES_QUERY = defineQuery(
+  `*[_type == "article" && _id != $id && type == "scrollytelling"] | order(publishedAt desc) [0...3] {
+    _id,
+    title,
+    slug,
+    type,
+    teaser,
+    heroImage,
+    tags[]->{ _id, title, slug }
+  }`
+)
+
+export const MENU_QUERY = defineQuery(
+  `{
+    "tags": *[_type == "tag"] | order(title asc) { _id, title, slug },
+    "featured": *[_type == "article" && type == "scrollytelling"] | order(publishedAt desc) [0] {
+      _id, title, slug, heroImage, tags[]->{ _id, title }
+    }
+  }`
+)
+
+export const TAG_PAGE_QUERY = defineQuery(
+  `{
+    "tag": *[_type == "tag" && slug.current == $slug][0] { _id, title, slug },
+    "articles": *[_type == "article" && references(*[_type == "tag" && slug.current == $slug][0]._id)] | order(publishedAt desc) {
+      _id, title, slug, type, teaser, heroImage,
+      tags[]->{ _id, title, slug }
+    }
+  }`
+)
+
 export const FRONTPAGE_QUERY = defineQuery(
   `{
     "edition": *[_type == "edition"] | order(year desc, number desc) [0] {
@@ -61,6 +92,10 @@ export const FRONTPAGE_QUERY = defineQuery(
     },
     "editorial": *[_type == "editorial"][0] {
       _id, title, slug, teaserText
+    },
+    "podcast": *[_type == "podcastEpisode"] | order(publishedAt desc) [0] {
+      _id, title, slug, description, spotifyUrl, thumbnail, duration, episodeNumber,
+      tags[]->{ _id, title }
     }
   }`
 )

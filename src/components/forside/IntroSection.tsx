@@ -6,7 +6,15 @@ const COVER_IMAGE = {
   alt: 'Kirsebærblomster',
 }
 
+const SCROLL_TEXT = 'Scroll for å lese magasinet'
+const TICKER_REPEAT = 8
+const TICKER_SEPARATOR = '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0'
+
 export function IntroSection() {
+  const tickerContent = Array(TICKER_REPEAT)
+    .fill(`${SCROLL_TEXT}${TICKER_SEPARATOR}`)
+    .join('')
+
   return (
     <section className="relative flex h-screen w-full items-center justify-center">
       {/* Background image */}
@@ -24,19 +32,33 @@ export function IntroSection() {
 
       {/* Content — centered */}
       <div className="relative z-10 flex flex-col items-center px-6 text-center">
-        <p className="mb-6 font-heading text-[11px] uppercase tracking-[0.5em] text-white/50">
+        <p className="mb-10 font-heading text-[11px] uppercase tracking-[0.5em] text-white/50 lg:mb-12">
           Rede utgave 2 — 2026
         </p>
         <h1 className="max-w-4xl font-display text-5xl leading-[1.1] text-gold md:text-7xl lg:text-8xl">
           Ta deg tid til å slappe av litt
         </h1>
-      </div>
 
-      {/* Bottom — scroll label */}
-      <div className="absolute inset-x-0 bottom-8 flex items-center justify-center gap-4 text-white/50 lg:bottom-12">
-        <span className="font-heading text-[10px] uppercase tracking-[0.4em]">Magasin</span>
-        <span className="h-px w-6 bg-white/30" />
-        <span className="font-heading text-[10px] uppercase tracking-[0.4em]">Scroll for å lese magasinet</span>
+        {/* Scroll ticker — same spacing as label above title */}
+        <div
+          className="mt-10 w-full max-w-md overflow-hidden lg:mt-12 lg:max-w-lg"
+          style={{
+            maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+          }}
+        >
+          <div
+            className="animate-scroll-left flex whitespace-nowrap"
+            style={{ width: 'max-content', animationDuration: '60s' }}
+          >
+            <span className="font-heading text-[10px] uppercase tracking-[0.4em] text-gold/50">
+              {tickerContent}
+            </span>
+            <span className="font-heading text-[10px] uppercase tracking-[0.4em] text-gold/50">
+              {tickerContent}
+            </span>
+          </div>
+        </div>
       </div>
     </section>
   )

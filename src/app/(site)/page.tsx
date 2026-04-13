@@ -3,6 +3,7 @@ import { FRONTPAGE_QUERY } from '@/sanity/lib/queries'
 import { IntroSection } from '@/components/forside/IntroSection'
 import { FeaturedHero } from '@/components/forside/FeaturedHero'
 import { HorizontalScroll } from '@/components/forside/HorizontalScroll'
+import { PodcastSection } from '@/components/forside/PodcastSection'
 import { StoriesGrid } from '@/components/forside/StoriesGrid'
 
 export default async function Home() {
@@ -18,6 +19,11 @@ export default async function Home() {
       tags?: { _id: string; title: string }[]
     }>
     editorial: { _id: string; title: string; slug: { current: string }; teaserText?: string } | null
+    podcast: {
+      _id: string; title: string; description?: string; spotifyUrl?: string
+      thumbnail?: { asset: { _ref: string } }; duration?: number; episodeNumber?: number
+      tags?: { _id: string; title: string }[]
+    } | null
   }>({ query: FRONTPAGE_QUERY })
 
   const articles = data.articles || []
@@ -37,11 +43,13 @@ export default async function Home() {
 
   return (
     <>
-      {/* 1. Intro */}
-      <IntroSection />
-
-      {/* 2. Fullscreen feature articles (100vh each) */}
-      <FeaturedHero articles={featured} />
+      {/* 1. Intro + Features — sticky scroll zone */}
+      <div className="relative" style={{ clipPath: 'inset(0)' }}>
+        <div className="sticky top-0 z-0">
+          <IntroSection />
+        </div>
+        <FeaturedHero articles={featured} />
+      </div>
 
       {/* 3. Horizontal scroll — "Nytt fra lokalmiljøet" */}
       <HorizontalScroll
@@ -50,7 +58,10 @@ export default async function Home() {
         label={`Rede nr ${data.edition?.number} ${data.edition?.year}`}
       />
 
-      {/* 4. Stories grid with tag filters */}
+      {/* 4. Podcast */}
+      {data.podcast && <PodcastSection episode={data.podcast} />}
+
+      {/* 5. Stories grid with tag filters */}
       <StoriesGrid articles={remaining} />
     </>
   )
