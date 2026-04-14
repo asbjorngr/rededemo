@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { ScrollTrigger } from '@/lib/gsap-config'
 import { DiscoverView } from './DiscoverView'
 import { MagasinView } from './MagasinView'
 
@@ -26,6 +25,7 @@ interface ForsideControllerProps {
     title: string
     slug: { current: string }
     teaserText?: string
+    heroImage?: { asset: { _ref: string }; alt?: string }
   } | null
   podcast: {
     _id: string
@@ -61,14 +61,7 @@ export function ForsideController({
     const next: Mode = mode === 'discover' ? 'magasin' : 'discover'
     setMode(next)
     localStorage.setItem(STORAGE_KEY, next)
-    // Scroll to top — DOM changes dramatically between modes
     window.scrollTo(0, 0)
-    // Double rAF: wait for React render + browser paint, then refresh scroll calculations
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh()
-      })
-    })
   }, [mode])
 
   // Categorize articles for MagasinView

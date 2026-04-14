@@ -22,6 +22,7 @@ export default async function ArticlePage({ params }: PageProps) {
     heroImage?: { asset: { _ref: string }; alt?: string; photographer?: string }
     body?: unknown[]
     sections?: unknown[]
+    audioFileUrl?: string
     tags?: { _id: string; title: string; slug: { current: string } }[]
     edition?: { _id: string; title: string; number: number; year: number }
     author?: { _id: string; name: string; bio?: string; portrait?: { asset: { _ref: string } } }

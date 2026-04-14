@@ -134,6 +134,11 @@ export function FullscreenParallax({ data }: FullscreenParallaxProps) {
                       {children}
                     </h2>
                   ),
+                  h3: ({ children }) => (
+                    <h3 className="mb-6 mt-10 font-display text-2xl leading-tight text-white lg:text-3xl">
+                      {children}
+                    </h3>
+                  ),
                 },
               }}
             />

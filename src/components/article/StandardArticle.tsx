@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { urlFor } from '@/sanity/lib/image'
 import { PortableTextRenderer } from './PortableTextRenderer'
+import { AudioPlayer } from './AudioPlayer'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface StandardArticleProps {
@@ -11,6 +12,7 @@ interface StandardArticleProps {
     teaser?: string
     heroImage?: { asset: { _ref: string }; alt?: string; photographer?: string }
     body?: any[]
+    audioFileUrl?: string
     tags?: { _id: string; title: string; slug: { current: string } }[]
     author?: { _id: string; name: string }
     edition?: { title: string; number: number; year: number }
@@ -69,6 +71,13 @@ export function StandardArticle({ article }: StandardArticleProps) {
               <span>Rede nr {article.edition.number} {article.edition.year}</span>
             )}
           </div>
+
+          {/* Audio player */}
+          {article.audioFileUrl && (
+            <div className="mt-6">
+              <AudioPlayer src={article.audioFileUrl} theme="light" />
+            </div>
+          )}
         </div>
       </header>
 

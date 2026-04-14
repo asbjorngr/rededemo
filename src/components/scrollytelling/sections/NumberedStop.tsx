@@ -156,7 +156,7 @@ export function NumberedStop({ data }: NumberedStopProps) {
                       </p>
                     ),
                     h3: ({ children }) => (
-                      <h3 className="mb-4 mt-8 font-heading text-xl text-white lg:text-2xl">
+                      <h3 className="mb-6 mt-10 font-display text-2xl leading-tight text-white lg:text-3xl">
                         {children}
                       </h3>
                     ),

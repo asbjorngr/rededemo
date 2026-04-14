@@ -35,12 +35,12 @@ export function Header({ tags = [], featured = null }: HeaderProps) {
           </Link>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="flex cursor-pointer items-center gap-2 font-heading text-[13px] tracking-[0.1em] text-white/70 transition-colors hover:text-white"
+            className="flex cursor-pointer items-center gap-2 font-heading text-base tracking-[0.1em] text-white transition-colors hover:text-gold"
           >
+            Meny
             <span className="transition-transform duration-300" style={{ display: 'inline-block', transform: menuOpen ? 'rotate(45deg)' : 'none' }}>
               +
             </span>
-            Meny
           </button>
         </div>
       </header>

@@ -19,6 +19,7 @@ interface DiscoverViewProps {
     title: string
     slug: { current: string }
     teaserText?: string
+    heroImage?: { asset: { _ref: string }; alt?: string }
   } | null
   podcast: {
     _id: string
@@ -73,17 +74,35 @@ function DiscoverCard({
         ) : (
           <div className="h-full w-full bg-navy-light" />
         )}
-        <div className={`absolute inset-0 bg-gradient-to-t ${featured ? 'from-black/80 via-black/30' : 'from-black/70 via-black/20'} to-transparent`} />
-        <div className={`absolute inset-x-0 bottom-0 ${featured ? 'p-4 lg:p-6' : 'p-3 lg:p-4'}`}>
-          {tag && (
-            <span className={`inline-block font-heading uppercase tracking-[0.3em] text-gold ${featured ? 'mb-2 text-[10px] lg:text-[11px]' : 'mb-1 text-[9px] lg:text-[10px]'}`}>
-              {tag}
-            </span>
-          )}
-          <h3 className={`font-display leading-snug text-white ${featured ? 'text-lg lg:text-2xl' : 'text-sm lg:text-base'}`}>
-            {title}
-          </h3>
-        </div>
+        {featured ? (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+            <div className="absolute inset-0 flex flex-col items-center justify-end px-4 pb-6 text-center lg:px-6 lg:pb-8">
+              {tag && (
+                <span className="mb-2 inline-block font-heading text-[10px] uppercase tracking-[0.4em] text-gold lg:text-[11px]">
+                  {tag}
+                </span>
+              )}
+              <h3 className="max-w-[90%] font-display text-xl leading-[1.1] text-white lg:text-2xl">
+                {title}
+              </h3>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-3 lg:p-4">
+              {tag && (
+                <span className="mb-1 inline-block font-heading text-[9px] uppercase tracking-[0.3em] text-gold lg:text-[10px]">
+                  {tag}
+                </span>
+              )}
+              <h3 className="font-display text-sm leading-snug text-white lg:text-base">
+                {title}
+              </h3>
+            </div>
+          </>
+        )}
       </div>
     </Link>
   )
@@ -113,27 +132,31 @@ export function DiscoverView({
         {/* Row 1 — 3 feature cards (tall, portrait) */}
         {features.length > 0 && (
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 lg:gap-3">
-            {features.map((article) => (
-              <DiscoverCard
-                key={article._id}
-                href={`/artikler/${article.slug.current}`}
-                imageRef={article.heroImage}
-                imageAlt={article.heroImage?.alt}
-                title={article.title}
-                tag={article.tags?.[0]?.title}
-                aspect="3/4"
-                featured
-                imageWidth={500}
-                imageHeight={667}
-                sizes="(max-width: 1024px) 50vw, 33vw"
-              />
-            ))}
+            {features.map((article, i) => {
+              const isLastOdd = features.length % 2 === 1 && i === features.length - 1
+              return (
+                <div key={article._id} className={isLastOdd ? 'col-span-2 lg:col-span-1' : ''}>
+                  <DiscoverCard
+                    href={`/artikler/${article.slug.current}`}
+                    imageRef={article.heroImage}
+                    imageAlt={article.heroImage?.alt}
+                    title={article.title}
+                    tag={article.tags?.[0]?.title}
+                    aspect="3/4"
+                    featured
+                    imageWidth={isLastOdd ? 800 : 500}
+                    imageHeight={isLastOdd ? 1067 : 667}
+                    sizes={isLastOdd ? '(max-width: 1024px) 100vw, 33vw' : '(max-width: 1024px) 50vw, 33vw'}
+                  />
+                </div>
+              )
+            })}
           </div>
         )}
 
-        {/* Row 2 — Leder + Podcast (wide, landscape) */}
+        {/* Row 2 — Leder + Podcast (stacked on mobile, side by side on desktop) */}
         {(editorial || podcast) && (
-          <div className="grid grid-cols-2 gap-2 lg:gap-3">
+          <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-3">
             {/* Leder */}
             {editorial && (
               <Link
@@ -144,60 +167,68 @@ export function DiscoverView({
                   className="relative flex flex-col justify-end overflow-hidden rounded-lg bg-tobb-blue p-4 lg:p-6"
                   style={{ aspectRatio: '16/9' }}
                 >
-                  <span className="mb-1 font-heading text-[9px] uppercase tracking-[0.3em] text-white/50 lg:text-[10px]">
-                    Leder
-                  </span>
-                  <h3 className="font-display text-sm leading-snug text-white transition-colors duration-300 group-hover:text-gold lg:text-lg">
-                    {editorial.title}
-                  </h3>
-                  {editorial.teaserText && (
-                    <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-white/50 lg:text-sm">
-                      {editorial.teaserText}
-                    </p>
+                  {editorial.heroImage?.asset && (
+                    <>
+                      <Image
+                        src={urlFor(editorial.heroImage).width(600).height(338).fit('crop').url()}
+                        alt={editorial.heroImage.alt || editorial.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                        sizes="50vw"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    </>
                   )}
+                  <div className="relative">
+                    <span className="mb-1 font-heading text-[9px] uppercase tracking-[0.3em] text-white/50 lg:text-[10px]">
+                      Leder
+                    </span>
+                    <h3 className="font-display text-sm leading-snug text-white transition-colors duration-300 group-hover:text-gold lg:text-lg">
+                      {editorial.title}
+                    </h3>
+                    {editorial.teaserText && (
+                      <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-white/50 lg:text-sm">
+                        {editorial.teaserText}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </Link>
             )}
 
             {/* Podcast */}
             {podcast && (
-              <div className="group block">
-                <div
-                  className="relative flex flex-col justify-end overflow-hidden rounded-lg bg-purple p-4 lg:p-6"
-                  style={{ aspectRatio: '16/9' }}
-                >
-                  {podcast.thumbnail?.asset && (
-                    <Image
-                      src={urlFor(podcast.thumbnail).width(600).height(338).fit('crop').url()}
-                      alt={podcast.title}
-                      fill
-                      className="object-cover opacity-40"
-                      sizes="50vw"
-                    />
+              <div className="flex flex-col overflow-hidden rounded-lg bg-white/[0.06]">
+                <div className="flex flex-1 flex-col justify-end p-4 lg:p-6">
+                  <p className="mb-1 font-heading text-[9px] uppercase tracking-[0.3em] text-white/40 lg:text-[10px]">
+                    {podcast.episodeNumber
+                      ? `Episode ${podcast.episodeNumber}`
+                      : 'Podcast'}
+                  </p>
+                  <h3 className="font-display text-sm leading-snug text-white lg:text-lg">
+                    {podcast.title}
+                  </h3>
+                  {podcast.description && (
+                    <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-white/50 lg:text-sm">
+                      {podcast.description}
+                    </p>
                   )}
-                  <div className="relative">
-                    <div className="mb-2 flex items-center gap-2">
-                      <span className="font-heading text-[9px] uppercase tracking-[0.3em] text-white/50 lg:text-[10px]">
-                        {podcast.episodeNumber
-                          ? `Podcast ep. ${podcast.episodeNumber}`
-                          : 'Podcast'}
-                      </span>
-                      {/* Play indicator */}
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="white"
-                          className="ml-0.5 h-2.5 w-2.5"
-                        >
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </span>
-                    </div>
-                    <h3 className="font-display text-sm leading-snug text-white lg:text-lg">
-                      {podcast.title}
-                    </h3>
-                  </div>
                 </div>
+                {podcast.spotifyUrl && (
+                  <div className="px-3 pb-3 lg:px-4 lg:pb-4">
+                    <div className="overflow-hidden rounded-lg">
+                      <iframe
+                        src={podcast.spotifyUrl.replace('open.spotify.com/', 'open.spotify.com/embed/')}
+                        width="100%"
+                        height="152"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                        className="border-0"
+                        title={podcast.title}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

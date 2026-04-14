@@ -85,6 +85,7 @@ export function HeroSection({ data }: HeroSectionProps) {
           end: 'bottom top',
           pin: true,
           pinSpacing: false,
+          anticipatePin: 1,
         })
       }
 

@@ -38,6 +38,7 @@ export function StickyPortrait({ data }: StickyPortraitProps) {
           end: 'bottom bottom',
           pin: imageColRef.current,
           pinSpacing: false,
+          anticipatePin: 1,
         })
       }
     })
@@ -108,6 +109,11 @@ export function StickyPortrait({ data }: StickyPortraitProps) {
                         {children}
                       </h2>
                     ),
+                    h3: ({ children }) => (
+                      <h3 className="mb-6 mt-10 font-display text-2xl leading-tight text-white lg:text-3xl">
+                        {children}
+                      </h3>
+                    ),
                     blockquote: ({ children }) => (
                       <blockquote
                         className="my-8 border-l-2 pl-6 font-display text-xl italic leading-relaxed lg:text-2xl"
@@ -170,7 +176,7 @@ export function StickyPortrait({ data }: StickyPortraitProps) {
                       </h2>
                     ),
                     h3: ({ children }) => (
-                      <h3 className="mb-4 mt-8 font-heading text-xl text-white lg:text-2xl">
+                      <h3 className="mb-6 mt-10 font-display text-2xl leading-tight text-white lg:text-3xl">
                         {children}
                       </h3>
                     ),
