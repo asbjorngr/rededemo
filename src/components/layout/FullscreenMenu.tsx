@@ -47,7 +47,6 @@ export function FullscreenMenu({ isOpen, onClose, tags, featured }: FullscreenMe
   const closeTopics = useCallback(() => {
     topicsTimeout.current = setTimeout(() => {
       setShowTopics(false)
-      setHoveredItem(null)
       setHoveredTopic(null)
     }, 400)
   }, [])
@@ -80,7 +79,7 @@ export function FullscreenMenu({ isOpen, onClose, tags, featured }: FullscreenMe
       <div className="relative z-10 flex h-full px-8 lg:px-16">
         {/* Column 1 — Main nav */}
         <div className="flex w-[280px] flex-col justify-center lg:w-[320px]">
-          <nav className="space-y-1">
+          <nav className="space-y-1" onMouseLeave={() => { setHoveredItem(null); closeTopics() }}>
             {/* Temaer — with hover to show topics */}
             <div
               onMouseEnter={openTopics}
@@ -95,13 +94,12 @@ export function FullscreenMenu({ isOpen, onClose, tags, featured }: FullscreenMe
               </span>
             </div>
 
-            {NAV_LINKS.map((item, index) => (
+            {NAV_LINKS.map((item) => (
               <Link
                 key={item.key}
                 href={item.href}
                 onClick={onClose}
                 onMouseEnter={() => { setHoveredItem(item.key); closeTopics() }}
-                onMouseLeave={() => setHoveredItem(null)}
                 className={`block font-display text-5xl text-white transition-all duration-500 hover:text-gold md:text-6xl lg:text-7xl ${
                   itemBlurred(item.key) ? 'opacity-20 blur-[2px]' : 'opacity-100'
                 }`}
@@ -154,10 +152,10 @@ export function FullscreenMenu({ isOpen, onClose, tags, featured }: FullscreenMe
           </div>
         </div>
 
-        {/* Column 3 — Featured article (right side) */}
+        {/* Column 3 — Featured article (right half, prominent) */}
         {featured && (
           <div
-            className={`hidden flex-1 items-center justify-end transition-all duration-700 lg:flex ${
+            className={`hidden flex-1 flex-col items-center justify-center transition-all duration-700 lg:flex ${
               isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'
             }`}
             style={{ transitionDelay: isOpen ? '200ms' : '0ms' }}
@@ -165,33 +163,31 @@ export function FullscreenMenu({ isOpen, onClose, tags, featured }: FullscreenMe
             <Link
               href={`/artikler/${featured.slug.current}`}
               onClick={onClose}
-              className="group block w-full max-w-sm"
+              className="group flex w-full max-w-lg flex-col items-center text-center"
             >
-              <div className="overflow-hidden rounded-2xl bg-white/[0.06]">
-                {featured.heroImage?.asset && (
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <Image
-                      src={urlFor(featured.heroImage).width(600).height(450).fit('crop').url()}
-                      alt={featured.heroImage.alt || featured.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                      sizes="400px"
-                    />
-                  </div>
-                )}
-                <div className="p-6">
-                  {featured.tags?.[0] && (
-                    <span className="mb-2 inline-block font-heading text-[10px] uppercase tracking-[0.3em] text-gold">
-                      {featured.tags[0].title}
-                    </span>
-                  )}
-                  <h3 className="font-display text-xl leading-snug text-white transition-colors duration-300 group-hover:text-gold">
-                    {featured.title}
-                  </h3>
-                  <span className="mt-4 inline-block font-heading text-[11px] uppercase tracking-[0.2em] text-white/40">
-                    Les nå
-                  </span>
+              {featured.heroImage?.asset && (
+                <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-2xl">
+                  <Image
+                    src={urlFor(featured.heroImage).width(800).height(1067).fit('crop').url()}
+                    alt={featured.heroImage.alt || featured.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                    sizes="(max-width: 1024px) 100vw, 35vw"
+                  />
                 </div>
+              )}
+              <div className="mt-6 flex flex-col items-center">
+                {featured.tags?.[0] && (
+                  <span className="mb-2 font-heading text-[11px] uppercase tracking-[0.4em] text-gold">
+                    {featured.tags[0].title}
+                  </span>
+                )}
+                <h3 className="max-w-md font-display text-3xl leading-[1.1] text-white transition-colors duration-300 group-hover:text-gold lg:text-4xl">
+                  {featured.title}
+                </h3>
+                <span className="mt-5 inline-block rounded-full border border-white/20 px-5 py-2 font-heading text-[11px] uppercase tracking-[0.2em] text-white/60 transition-colors group-hover:border-white/40 group-hover:text-white">
+                  Les nå
+                </span>
               </div>
             </Link>
           </div>
