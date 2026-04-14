@@ -193,7 +193,7 @@ export function TextWithImage({ data, index }: TextWithImageProps) {
   const hasImage = !!data.image?.asset
 
   const imageElement = hasImage && (
-    <div className="px-6 py-4 lg:px-16 lg:py-8">
+    <div className="px-6 py-16 lg:px-16 lg:py-24">
       <div
         ref={imageRef}
         className="relative mx-auto max-w-5xl overflow-hidden"
