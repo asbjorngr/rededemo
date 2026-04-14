@@ -161,11 +161,10 @@ export function DiscoverView({
             {editorial && (
               <Link
                 href="/leder"
-                className="group block"
+                className="group block h-full"
               >
                 <div
-                  className="relative flex flex-col justify-end overflow-hidden rounded-lg bg-tobb-blue p-4 lg:p-6"
-                  style={{ aspectRatio: '16/9' }}
+                  className="relative flex h-full flex-col justify-end overflow-hidden rounded-lg bg-tobb-blue p-4 aspect-[16/9] lg:aspect-auto lg:p-6"
                 >
                   {editorial.heroImage?.asset && (
                     <>
@@ -196,39 +195,19 @@ export function DiscoverView({
               </Link>
             )}
 
-            {/* Podcast */}
-            {podcast && (
-              <div className="flex flex-col overflow-hidden rounded-lg bg-white/[0.06]">
-                <div className="flex flex-1 flex-col justify-end p-4 lg:p-6">
-                  <p className="mb-1 font-heading text-[9px] uppercase tracking-[0.3em] text-white/40 lg:text-[10px]">
-                    {podcast.episodeNumber
-                      ? `Episode ${podcast.episodeNumber}`
-                      : 'Podcast'}
-                  </p>
-                  <h3 className="font-display text-sm leading-snug text-white lg:text-lg">
-                    {podcast.title}
-                  </h3>
-                  {podcast.description && (
-                    <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-white/50 lg:text-sm">
-                      {podcast.description}
-                    </p>
-                  )}
-                </div>
-                {podcast.spotifyUrl && (
-                  <div className="px-3 pb-3 lg:px-4 lg:pb-4">
-                    <div className="overflow-hidden rounded-lg">
-                      <iframe
-                        src={podcast.spotifyUrl.replace('open.spotify.com/', 'open.spotify.com/embed/')}
-                        width="100%"
-                        height="152"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                        className="border-0"
-                        title={podcast.title}
-                      />
-                    </div>
-                  </div>
-                )}
+            {/* Podcast — full Spotify embed, stretched to match leder height */}
+            {podcast?.spotifyUrl && (
+              <div className="h-full overflow-hidden rounded-lg">
+                <iframe
+                  src={podcast.spotifyUrl.replace('open.spotify.com/', 'open.spotify.com/embed/')}
+                  width="100%"
+                  height="100%"
+                  style={{ minHeight: 352 }}
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  className="block border-0"
+                  title={podcast.title}
+                />
               </div>
             )}
           </div>
