@@ -45,18 +45,14 @@ export function FeaturedHero({ articles }: FeaturedHeroProps) {
             {/* Gradient overlays */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
 
-            {/* Top label */}
-            <div className="absolute inset-x-0 top-0 px-6 pt-8 lg:px-12 lg:pt-12">
-              <span className="font-heading text-[11px] uppercase tracking-[0.5em] text-white/50">
-                Feature
-              </span>
-            </div>
-
             {/* Bottom content — centered */}
             <Link
               href={`/artikler/${article.slug.current}`}
               className="group absolute inset-x-0 bottom-0 flex flex-col items-center px-6 pb-10 text-center lg:px-12 lg:pb-16"
             >
+              <span className="mb-3 font-heading text-[11px] uppercase tracking-[0.5em] text-white/50">
+                Feature
+              </span>
               <h2 className="max-w-3xl font-display text-4xl leading-[1.1] text-white transition-colors duration-300 group-hover:text-gold md:text-5xl lg:text-6xl">
                 {article.title}
               </h2>
