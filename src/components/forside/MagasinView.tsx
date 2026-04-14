@@ -68,10 +68,10 @@ export function MagasinView({ featured, curated, remaining, editorial, podcast, 
           <div className="mx-auto grid max-w-[1100px] gap-6 lg:grid-cols-2">
             {/* Leder */}
             {editorial && (
-              <Link href="/leder" className="group block">
-                <div className="overflow-hidden rounded-2xl bg-white/[0.06]">
+              <Link href="/leder" className="group block h-full">
+                <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-white/[0.06]">
                   {editorial.heroImage?.asset && (
-                    <div className="relative aspect-[16/9] overflow-hidden">
+                    <div className="relative aspect-[16/9] overflow-hidden lg:aspect-auto lg:flex-1">
                       <Image
                         src={urlFor(editorial.heroImage).width(600).height(338).fit('crop').url()}
                         alt={editorial.heroImage.alt || editorial.title}
@@ -101,33 +101,19 @@ export function MagasinView({ featured, curated, remaining, editorial, podcast, 
               </Link>
             )}
 
-            {/* Podcast */}
-            {podcast && (
-              <div className="rounded-2xl bg-white/[0.06] p-6 lg:p-8">
-                <p className="mb-2 font-heading text-[10px] uppercase tracking-[0.4em] text-white/40">
-                  {podcast.episodeNumber ? `Episode ${podcast.episodeNumber}` : 'Podcast'}
-                </p>
-                <h3 className="mb-3 font-display text-xl leading-snug text-white lg:text-2xl">
-                  {podcast.title}
-                </h3>
-                {podcast.description && (
-                  <p className="mb-6 text-[15px] leading-[1.7] text-white/50">
-                    {podcast.description}
-                  </p>
-                )}
-                {embedUrl && (
-                  <div className="overflow-hidden rounded-xl">
-                    <iframe
-                      src={embedUrl}
-                      width="100%"
-                      height="152"
-                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                      loading="lazy"
-                      className="border-0"
-                      title={podcast.title}
-                    />
-                  </div>
-                )}
+            {/* Podcast — full Spotify embed */}
+            {podcast && embedUrl && (
+              <div className="h-full overflow-hidden rounded-2xl">
+                <iframe
+                  src={embedUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ minHeight: 352 }}
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  className="block border-0"
+                  title={podcast.title}
+                />
               </div>
             )}
           </div>
