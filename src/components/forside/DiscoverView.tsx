@@ -137,7 +137,7 @@ export function DiscoverView({
             {/* Leder */}
             {editorial && (
               <Link
-                href={`/artikler/${editorial.slug.current}`}
+                href="/leder"
                 className="group block"
               >
                 <div

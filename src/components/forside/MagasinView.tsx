@@ -68,7 +68,7 @@ export function MagasinView({ featured, curated, remaining, editorial, podcast, 
           <div className="mx-auto grid max-w-[1100px] gap-6 lg:grid-cols-2">
             {/* Leder */}
             {editorial && (
-              <Link href={`/artikler/${editorial.slug.current}`} className="group block">
+              <Link href="/leder" className="group block">
                 <div className="overflow-hidden rounded-2xl bg-white/[0.06]">
                   {editorial.heroImage?.asset && (
                     <div className="relative aspect-[16/9] overflow-hidden">

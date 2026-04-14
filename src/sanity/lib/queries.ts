@@ -101,3 +101,11 @@ export const FRONTPAGE_QUERY = defineQuery(
     }
   }`
 )
+
+export const EDITORIAL_PAGE_QUERY = defineQuery(
+  `*[_type == "editorial"][0] {
+    _id, title, slug, teaserText, heroImage, fullText,
+    "audioFileUrl": audioFile.asset->url,
+    edition->{ _id, title, number, year }
+  }`
+)
