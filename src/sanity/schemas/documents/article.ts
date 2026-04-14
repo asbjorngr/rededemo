@@ -93,6 +93,13 @@ export const article = defineType({
       type: 'number',
     }),
     defineField({
+      name: 'audioFile',
+      title: 'Lydfil',
+      type: 'file',
+      options: { accept: 'audio/*' },
+      description: 'MP3-opplesning av artikkelen',
+    }),
+    defineField({
       name: 'scrollyTheme',
       title: 'Scrollytelling-tema',
       type: 'string',

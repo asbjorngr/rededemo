@@ -120,6 +120,7 @@ export function ForsideController({
           featured={featured}
           curated={curated}
           remaining={remaining}
+          editorial={editorial}
           podcast={podcast}
           edition={edition}
         />

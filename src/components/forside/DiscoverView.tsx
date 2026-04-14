@@ -40,6 +40,7 @@ function DiscoverCard({
   title,
   tag,
   aspect,
+  featured = false,
   imageWidth = 600,
   imageHeight = 800,
   sizes = '33vw',
@@ -50,6 +51,7 @@ function DiscoverCard({
   title: string
   tag?: string
   aspect: string
+  featured?: boolean
   imageWidth?: number
   imageHeight?: number
   sizes?: string
@@ -71,14 +73,14 @@ function DiscoverCard({
         ) : (
           <div className="h-full w-full bg-navy-light" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-3 lg:p-4">
+        <div className={`absolute inset-0 bg-gradient-to-t ${featured ? 'from-black/80 via-black/30' : 'from-black/70 via-black/20'} to-transparent`} />
+        <div className={`absolute inset-x-0 bottom-0 ${featured ? 'p-4 lg:p-6' : 'p-3 lg:p-4'}`}>
           {tag && (
-            <span className="mb-1 inline-block font-heading text-[9px] uppercase tracking-[0.3em] text-gold lg:text-[10px]">
+            <span className={`inline-block font-heading uppercase tracking-[0.3em] text-gold ${featured ? 'mb-2 text-[10px] lg:text-[11px]' : 'mb-1 text-[9px] lg:text-[10px]'}`}>
               {tag}
             </span>
           )}
-          <h3 className="font-display text-sm leading-snug text-white lg:text-base">
+          <h3 className={`font-display leading-snug text-white ${featured ? 'text-lg lg:text-2xl' : 'text-sm lg:text-base'}`}>
             {title}
           </h3>
         </div>
@@ -111,7 +113,7 @@ export function DiscoverView({
         {/* Row 1 — 3 feature cards (tall, portrait) */}
         {features.length > 0 && (
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 lg:gap-3">
-            {features.map((article, i) => (
+            {features.map((article) => (
               <DiscoverCard
                 key={article._id}
                 href={`/artikler/${article.slug.current}`}
@@ -120,9 +122,10 @@ export function DiscoverView({
                 title={article.title}
                 tag={article.tags?.[0]?.title}
                 aspect="3/4"
+                featured
                 imageWidth={500}
                 imageHeight={667}
-                sizes={i === 0 ? '(max-width: 1024px) 50vw, 33vw' : '(max-width: 1024px) 50vw, 33vw'}
+                sizes="(max-width: 1024px) 50vw, 33vw"
               />
             ))}
           </div>

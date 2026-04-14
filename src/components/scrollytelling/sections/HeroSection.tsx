@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
 import { gsap, ScrollTrigger } from '@/lib/gsap-config'
@@ -15,8 +15,57 @@ interface HeroSectionProps {
     backgroundColor?: string
     author?: string
     date?: string
+    audioFileUrl?: string
   }
   index: number
+}
+
+function HeroAudioButton({ src }: { src: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [playing, setPlaying] = useState(false)
+
+  const toggle = useCallback(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (playing) {
+      audio.pause()
+    } else {
+      audio.play()
+    }
+    setPlaying(!playing)
+  }, [playing])
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    const onEnded = () => setPlaying(false)
+    audio.addEventListener('ended', onEnded)
+    return () => audio.removeEventListener('ended', onEnded)
+  }, [])
+
+  return (
+    <button
+      onClick={toggle}
+      className="mt-6 flex cursor-pointer items-center gap-2.5 rounded-full bg-white/[0.1] px-4 py-2 backdrop-blur-sm transition-colors hover:bg-white/[0.18]"
+    >
+      <audio ref={audioRef} src={src} preload="none" />
+      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
+        {playing ? (
+          <svg viewBox="0 0 24 24" fill="white" className="h-2.5 w-2.5">
+            <rect x="6" y="5" width="4" height="14" rx="1" />
+            <rect x="14" y="5" width="4" height="14" rx="1" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="white" className="ml-0.5 h-2.5 w-2.5">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        )}
+      </span>
+      <span className="font-heading text-[11px] uppercase tracking-[0.2em] text-white/70">
+        {playing ? 'Spiller' : 'Hør artikkelen'}
+      </span>
+    </button>
+  )
 }
 
 export function HeroSection({ data }: HeroSectionProps) {
@@ -103,9 +152,9 @@ export function HeroSection({ data }: HeroSectionProps) {
           </h1>
         )}
 
-        <div ref={metaRef}>
+        <div ref={metaRef} className="flex flex-col items-center">
           {data.subtitle && (
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-white/60 lg:text-lg">
+            <p className="mt-4 max-w-xl text-center text-base leading-relaxed text-white/60 lg:text-lg">
               {data.subtitle}
             </p>
           )}
@@ -116,6 +165,7 @@ export function HeroSection({ data }: HeroSectionProps) {
               {data.date && <span>{data.date}</span>}
             </p>
           )}
+          {data.audioFileUrl && <HeroAudioButton src={data.audioFileUrl} />}
         </div>
       </div>
     </section>

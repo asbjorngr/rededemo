@@ -1,7 +1,9 @@
+import Image from 'next/image'
+import Link from 'next/link'
+import { urlFor } from '@/sanity/lib/image'
 import { IntroSection } from './IntroSection'
 import { FeaturedHero } from './FeaturedHero'
 import { HorizontalScroll } from './HorizontalScroll'
-import { PodcastSection } from './PodcastSection'
 import { StoriesGrid } from './StoriesGrid'
 
 interface Article {
@@ -18,6 +20,13 @@ interface MagasinViewProps {
   featured: Article[]
   curated: Article[]
   remaining: Article[]
+  editorial: {
+    _id: string
+    title: string
+    slug: { current: string }
+    teaserText?: string
+    heroImage?: { asset: { _ref: string }; alt?: string }
+  } | null
   podcast: {
     _id: string
     title: string
@@ -31,7 +40,11 @@ interface MagasinViewProps {
   edition: { _id: string; title: string; number: number; year: number } | null
 }
 
-export function MagasinView({ featured, curated, remaining, podcast, edition }: MagasinViewProps) {
+export function MagasinView({ featured, curated, remaining, editorial, podcast, edition }: MagasinViewProps) {
+  const embedUrl = podcast?.spotifyUrl
+    ? podcast.spotifyUrl.replace('open.spotify.com/', 'open.spotify.com/embed/')
+    : null
+
   return (
     <>
       {/* 1. Intro + Features — sticky scroll zone */}
@@ -49,8 +62,77 @@ export function MagasinView({ featured, curated, remaining, podcast, edition }: 
         label={`Rede nr ${edition?.number} ${edition?.year}`}
       />
 
-      {/* 3. Podcast */}
-      {podcast && <PodcastSection episode={podcast} />}
+      {/* 3. Leder + Podcast — side by side */}
+      {(editorial || podcast) && (
+        <section className="bg-navy px-6 py-16 lg:px-16 lg:py-24">
+          <div className="mx-auto grid max-w-[1100px] gap-6 lg:grid-cols-2">
+            {/* Leder */}
+            {editorial && (
+              <Link href={`/artikler/${editorial.slug.current}`} className="group block">
+                <div className="overflow-hidden rounded-2xl bg-white/[0.06]">
+                  {editorial.heroImage?.asset && (
+                    <div className="relative aspect-[16/9] overflow-hidden">
+                      <Image
+                        src={urlFor(editorial.heroImage).width(600).height(338).fit('crop').url()}
+                        alt={editorial.heroImage.alt || editorial.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                      />
+                    </div>
+                  )}
+                  <div className="p-6 lg:p-8">
+                    <p className="mb-2 font-heading text-[10px] uppercase tracking-[0.4em] text-white/40">
+                      Leder
+                    </p>
+                    <h3 className="font-display text-xl leading-snug text-white transition-colors duration-300 group-hover:text-gold lg:text-2xl">
+                      {editorial.title}
+                    </h3>
+                    {editorial.teaserText && (
+                      <p className="mt-3 line-clamp-3 text-[15px] leading-[1.7] text-white/50">
+                        {editorial.teaserText}
+                      </p>
+                    )}
+                    <span className="mt-4 inline-block font-heading text-[11px] uppercase tracking-[0.2em] text-white/30 transition-colors group-hover:text-white/50">
+                      Les lederen
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            )}
+
+            {/* Podcast */}
+            {podcast && (
+              <div className="rounded-2xl bg-white/[0.06] p-6 lg:p-8">
+                <p className="mb-2 font-heading text-[10px] uppercase tracking-[0.4em] text-white/40">
+                  {podcast.episodeNumber ? `Episode ${podcast.episodeNumber}` : 'Podcast'}
+                </p>
+                <h3 className="mb-3 font-display text-xl leading-snug text-white lg:text-2xl">
+                  {podcast.title}
+                </h3>
+                {podcast.description && (
+                  <p className="mb-6 text-[15px] leading-[1.7] text-white/50">
+                    {podcast.description}
+                  </p>
+                )}
+                {embedUrl && (
+                  <div className="overflow-hidden rounded-xl">
+                    <iframe
+                      src={embedUrl}
+                      width="100%"
+                      height="152"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      loading="lazy"
+                      className="border-0"
+                      title={podcast.title}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* 4. Stories grid with tag filters */}
       <StoriesGrid articles={remaining} />

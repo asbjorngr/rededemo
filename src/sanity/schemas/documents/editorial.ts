@@ -30,6 +30,19 @@ export const editorial = defineType({
       type: 'datetime',
     }),
     defineField({
+      name: 'heroImage',
+      title: 'Bilde',
+      type: 'image',
+      options: { hotspot: true },
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alt-tekst',
+          type: 'string',
+        },
+      ],
+    }),
+    defineField({
       name: 'teaserText',
       title: 'Teaser-tekst',
       type: 'text',

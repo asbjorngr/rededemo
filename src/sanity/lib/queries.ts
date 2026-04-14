@@ -25,6 +25,7 @@ export const ARTICLE_BY_SLUG_QUERY = defineQuery(
     sections,
     scrollyTheme,
     scrollyBackground,
+    "audioFileUrl": audioFile.asset->url,
     tags[]->{ _id, title, slug },
     edition->{ _id, title, number, year },
     author->{ _id, name, bio, portrait }
@@ -92,7 +93,7 @@ export const FRONTPAGE_QUERY = defineQuery(
       tags[]->{ _id, title, slug }
     },
     "editorial": *[_type == "editorial"][0] {
-      _id, title, slug, teaserText
+      _id, title, slug, teaserText, heroImage
     },
     "podcast": *[_type == "podcastEpisode"] | order(publishedAt desc) [0] {
       _id, title, slug, description, spotifyUrl, thumbnail, duration, episodeNumber,

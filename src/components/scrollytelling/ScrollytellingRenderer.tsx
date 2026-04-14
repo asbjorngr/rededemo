@@ -40,6 +40,7 @@ interface ScrollytellingRendererProps {
     scrollyTheme?: ScrollyThemeName
     scrollyBackground?: string
     sections?: any[]
+    audioFileUrl?: string
     tags?: { _id: string; title: string }[]
     author?: { _id: string; name: string; bio?: string }
     edition?: { _id: string; title: string; number: number; year: number }
@@ -77,10 +78,13 @@ export function ScrollytellingRenderer({ article, relatedArticles = [] }: Scroll
       {sections.map((section, index) => {
         const Component = SECTION_MAP[section._type]
         if (!Component) return null
+        const sectionData = section._type === 'heroSection'
+          ? { ...section, backgroundColor: bg, audioFileUrl: article.audioFileUrl }
+          : { ...section, backgroundColor: bg }
         return (
           <Component
             key={section._key || index}
-            data={{ ...section, backgroundColor: bg }}
+            data={sectionData}
             index={index}
           />
         )

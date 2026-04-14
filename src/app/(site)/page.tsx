@@ -14,7 +14,7 @@ export default async function Home() {
       heroImage?: { asset: { _ref: string }; alt?: string }
       tags?: { _id: string; title: string }[]
     }>
-    editorial: { _id: string; title: string; slug: { current: string }; teaserText?: string } | null
+    editorial: { _id: string; title: string; slug: { current: string }; teaserText?: string; heroImage?: { asset: { _ref: string }; alt?: string } } | null
     podcast: {
       _id: string; title: string; description?: string; spotifyUrl?: string
       thumbnail?: { asset: { _ref: string } }; duration?: number; episodeNumber?: number
