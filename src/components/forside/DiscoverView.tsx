@@ -83,7 +83,7 @@ function DiscoverCard({
                   {tag}
                 </span>
               )}
-              <h3 className="max-w-[90%] font-display text-xl leading-[1.1] text-white lg:text-2xl">
+              <h3 className="max-w-[90%] font-display text-3xl leading-[1.05] text-white md:text-4xl lg:text-5xl">
                 {title}
               </h3>
             </div>
