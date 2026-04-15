@@ -166,7 +166,7 @@ export function FullscreenMenu({ isOpen, onClose, tags, featured }: FullscreenMe
               className="group flex w-full max-w-lg flex-col items-center text-center"
             >
               {featured.heroImage?.asset && (
-                <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-2xl">
+                <div className="relative aspect-[3/4] w-full max-w-xs overflow-hidden rounded-2xl">
                   <Image
                     src={urlFor(featured.heroImage).width(800).height(1067).fit('crop').url()}
                     alt={featured.heroImage.alt || featured.title}
