@@ -12,6 +12,7 @@ export default async function Home() {
       type: string
       teaser?: string
       heroImage?: { asset: { _ref: string }; alt?: string }
+      heroVideoUrl?: string
       tags?: { _id: string; title: string }[]
     }>
     editorial: { _id: string; title: string; slug: { current: string }; teaserText?: string; heroImage?: { asset: { _ref: string }; alt?: string } } | null

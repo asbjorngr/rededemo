@@ -9,6 +9,7 @@ interface Article {
   type: string
   teaser?: string
   heroImage?: { asset: { _ref: string }; alt?: string }
+  heroVideoUrl?: string
   tags?: { _id: string; title: string }[]
 }
 
@@ -38,6 +39,7 @@ function DiscoverCard({
   href,
   imageRef,
   imageAlt,
+  videoUrl,
   title,
   tag,
   aspect,
@@ -49,6 +51,7 @@ function DiscoverCard({
   href: string
   imageRef?: { asset: { _ref: string }; alt?: string }
   imageAlt?: string
+  videoUrl?: string
   title: string
   tag?: string
   aspect: string
@@ -63,7 +66,18 @@ function DiscoverCard({
         className="relative overflow-hidden rounded-lg"
         style={{ aspectRatio: aspect }}
       >
-        {imageRef?.asset ? (
+        {videoUrl ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={imageRef?.asset ? urlFor(imageRef).width(imageWidth).height(imageHeight).fit('crop').url() : undefined}
+            className="absolute inset-0 h-full w-full object-cover transition-all duration-500 group-hover:scale-[1.02] group-hover:brightness-110"
+          >
+            <source src={videoUrl} type="video/mp4" />
+          </video>
+        ) : imageRef?.asset ? (
           <Image
             src={urlFor(imageRef).width(imageWidth).height(imageHeight).fit('crop').url()}
             alt={imageAlt || title}
@@ -140,6 +154,7 @@ export function DiscoverView({
                     href={`/artikler/${article.slug.current}`}
                     imageRef={article.heroImage}
                     imageAlt={article.heroImage?.alt}
+                    videoUrl={article.heroVideoUrl}
                     title={article.title}
                     tag={article.tags?.[0]?.title}
                     aspect="3/4"
@@ -226,6 +241,7 @@ export function DiscoverView({
                   href={`/artikler/${article.slug.current}`}
                   imageRef={article.heroImage}
                   imageAlt={article.heroImage?.alt}
+                  videoUrl={article.heroVideoUrl}
                   title={article.title}
                   tag={article.tags?.[0]?.title}
                   aspect="3/4"
@@ -251,6 +267,7 @@ export function DiscoverView({
                   href={`/artikler/${article.slug.current}`}
                   imageRef={article.heroImage}
                   imageAlt={article.heroImage?.alt}
+                  videoUrl={article.heroVideoUrl}
                   title={article.title}
                   tag={article.tags?.[0]?.title}
                   aspect="4/3"

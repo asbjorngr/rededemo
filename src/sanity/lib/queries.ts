@@ -8,6 +8,7 @@ export const ARTICLES_QUERY = defineQuery(
     type,
     teaser,
     heroImage,
+    "heroVideoUrl": heroVideo.asset->url,
     tags[]->{ _id, title, slug },
     edition->{ _id, title, number, year }
   }`
@@ -68,7 +69,7 @@ export const MENU_QUERY = defineQuery(
   `{
     "tags": *[_type == "tag"] | order(title asc) { _id, title, slug },
     "featured": *[_type == "article" && type == "scrollytelling"] | order(publishedAt desc) [0] {
-      _id, title, slug, heroImage, tags[]->{ _id, title }
+      _id, title, slug, heroImage, "heroVideoUrl": heroVideo.asset->url, tags[]->{ _id, title }
     }
   }`
 )
@@ -90,6 +91,7 @@ export const FRONTPAGE_QUERY = defineQuery(
     },
     "articles": *[_type == "article"] | order(publishedAt desc) {
       _id, title, slug, type, teaser, heroImage,
+      "heroVideoUrl": heroVideo.asset->url,
       tags[]->{ _id, title, slug }
     },
     "editorial": *[_type == "editorial"][0] {

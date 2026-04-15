@@ -9,6 +9,7 @@ interface Article {
   slug: { current: string }
   teaser?: string
   heroImage?: { asset: { _ref: string }; alt?: string }
+  heroVideoUrl?: string
   tags?: { _id: string; title: string }[]
   type: string
 }
@@ -30,8 +31,19 @@ export function FeaturedHero({ articles }: FeaturedHeroProps) {
             className="sticky top-0 h-screen w-full"
             style={{ zIndex: index + 1 }}
           >
-            {/* Fullscreen background image */}
-            {article.heroImage?.asset && (
+            {/* Fullscreen background image/video */}
+            {article.heroVideoUrl ? (
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                poster={article.heroImage?.asset ? urlFor(article.heroImage).width(1920).height(1080).fit('crop').url() : undefined}
+                className="absolute inset-0 h-full w-full object-cover"
+              >
+                <source src={article.heroVideoUrl} type="video/mp4" />
+              </video>
+            ) : article.heroImage?.asset ? (
               <Image
                 src={urlFor(article.heroImage).width(1920).height(1080).fit('crop').url()}
                 alt={article.heroImage.alt || article.title}
@@ -40,7 +52,7 @@ export function FeaturedHero({ articles }: FeaturedHeroProps) {
                 sizes="100vw"
                 priority={index === 0}
               />
-            )}
+            ) : null}
 
             {/* Gradient overlays */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />

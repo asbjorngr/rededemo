@@ -74,6 +74,13 @@ export const article = defineType({
       ],
     }),
     defineField({
+      name: 'heroVideo',
+      title: 'Hero-video',
+      type: 'file',
+      options: { accept: 'video/*' },
+      description: 'Loopende video som vises i stedet for hovedbilde på forsidekort',
+    }),
+    defineField({
       name: 'teaser',
       title: 'Teaser',
       type: 'text',

@@ -15,6 +15,7 @@ interface Article {
   type: string
   teaser?: string
   heroImage?: { asset: { _ref: string }; alt?: string }
+  heroVideoUrl?: string
   tags?: { _id: string; title: string }[]
 }
 
