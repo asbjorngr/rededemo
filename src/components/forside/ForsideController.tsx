@@ -74,29 +74,23 @@ export function ForsideController({
 
   return (
     <>
-      {/* Toggle pill — overlays in header area, centered */}
+      {/* Toggle — right-aligned near Meny+ */}
       {mounted && (
-        <div className="pointer-events-none fixed top-0 z-50 flex h-16 w-full items-center justify-center">
-          <div className="pointer-events-auto flex items-center gap-0.5 rounded-full bg-white/[0.08] p-0.5 backdrop-blur-sm">
+        <div className="pointer-events-none fixed top-0 z-50 w-full">
+          <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-end px-6">
             <button
-              onClick={mode === 'discover' ? undefined : toggle}
-              className={`cursor-pointer rounded-full px-3.5 py-1.5 font-heading text-[11px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                mode === 'discover'
-                  ? 'bg-white/15 text-white'
-                  : 'text-white/40 hover:text-white/60'
-              }`}
+              onClick={toggle}
+              className="pointer-events-auto mr-24 flex cursor-pointer items-center gap-2.5"
             >
-              Discover
-            </button>
-            <button
-              onClick={mode === 'magasin' ? undefined : toggle}
-              className={`cursor-pointer rounded-full px-3.5 py-1.5 font-heading text-[11px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                mode === 'magasin'
-                  ? 'bg-white/15 text-white'
-                  : 'text-white/40 hover:text-white/60'
-              }`}
-            >
-              Magasin
+              <span className="font-heading text-[11px] uppercase tracking-[0.3em] text-white/50">
+                {mode === 'discover' ? 'Discover' : 'Magasin'}
+              </span>
+              <div className="relative h-5 w-9 rounded-full bg-white/10 transition-colors duration-300">
+                <div
+                  className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-300"
+                  style={{ transform: mode === 'magasin' ? 'translateX(18px)' : 'translateX(2px)' }}
+                />
+              </div>
             </button>
           </div>
         </div>

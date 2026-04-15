@@ -97,7 +97,7 @@ function DiscoverCard({
                   {tag}
                 </span>
               )}
-              <h3 className="max-w-[90%] font-display text-3xl leading-[1.05] text-white md:text-4xl lg:text-5xl">
+              <h3 className="max-w-[90%] font-display text-lg leading-[1.1] text-white sm:text-2xl md:text-3xl lg:text-4xl">
                 {title}
               </h3>
             </div>
@@ -141,7 +141,7 @@ export function DiscoverView({
   const remaining = standard.slice(4)
 
   return (
-    <div className="px-3 pb-12 pt-20 lg:px-6">
+    <div className="px-4 pb-12 pt-20 sm:px-6 lg:px-12 xl:px-16">
       <div className="mx-auto max-w-[1400px] space-y-3">
         {/* Row 1 — 3 feature cards (tall, portrait) */}
         {features.length > 0 && (
