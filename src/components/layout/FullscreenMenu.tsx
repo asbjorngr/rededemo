@@ -79,11 +79,10 @@ export function FullscreenMenu({ isOpen, onClose, tags, featured }: FullscreenMe
       <div className="relative z-10 flex h-full px-8 lg:px-16">
         {/* Column 1 — Main nav */}
         <div className="flex w-[280px] flex-col justify-center lg:w-[320px]">
-          <nav className="space-y-1" onMouseLeave={() => { setHoveredItem(null); closeTopics() }}>
+          <nav className="space-y-1" onMouseLeave={() => setHoveredItem(null)}>
             {/* Temaer — with hover to show topics */}
             <div
               onMouseEnter={openTopics}
-              onMouseLeave={closeTopics}
             >
               <span
                 className={`cursor-default font-display text-5xl text-white transition-all duration-500 hover:text-gold md:text-6xl lg:text-7xl ${
