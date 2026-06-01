@@ -4,7 +4,23 @@
  * Leser docx-filer, analyserer med Claude, laster opp bilder,
  * og oppretter alt innhold i Sanity.
  *
- * Kjør: npx tsx scripts/import-edition.ts
+ * VIKTIG — kilde til sannhet:
+ *   Dette er et ENGANGS-seedingverktøy, ikke en synk. Sanity er fasit for
+ *   alt publisert/levende innhold. content/-mappa er kun råarkiv.
+ *   Skriptet bruker deterministiske _id og HOPPER OVER artikler som allerede
+ *   finnes i Sanity, slik at en re-kjøring aldri dupliserer eller overskriver
+ *   redaktørens arbeid. Se docs/migrasjon-superponni.md.
+ *
+ * Kjør (trygt, hopper over eksisterende):
+ *   npx tsx scripts/import-edition.ts
+ *
+ * Tving overskriving av eksisterende artikler (BRUK MED OMHU — ødelegger
+ * redaksjonelle endringer i Sanity):
+ *   npx tsx scripts/import-edition.ts --force
+ *
+ * Pek på annen innholdsmappe (f.eks. Drive-mappe):
+ *   npx tsx scripts/import-edition.ts --content="/sti/til/Rede 2 2026"
+ *   eller env: REDE_CONTENT_DIR="/sti/til/Rede 2 2026"
  */
 
 import dotenv from 'dotenv'
@@ -29,10 +45,21 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 })
 
-const CONTENT_DIR = path.join(
-  process.cwd(),
-  'content',
-  'Rede 2 2026'
+// Tving overskriving av eksisterende artikler (default: hopp over).
+const FORCE = process.argv.includes('--force')
+
+// Innholdsmappe kan overstyres med --content="..." eller REDE_CONTENT_DIR,
+// slik at råmaterialet kan ligge i delt Drive-mappe i stedet for i repoet.
+const contentArg = process.argv
+  .find((a) => a.startsWith('--content='))
+  ?.split('=')
+  .slice(1)
+  .join('=')
+
+const CONTENT_DIR = path.resolve(
+  contentArg ??
+    process.env.REDE_CONTENT_DIR ??
+    path.join(process.cwd(), 'content', 'Rede 2 2026')
 )
 
 // --- Article definitions ---
@@ -394,9 +421,17 @@ function buildSections(
 async function main() {
   console.log('🚀 Starter import av Rede 2 2026\n')
 
-  // 1. Create edition
+  console.log(
+    FORCE
+      ? '⚠️  --force aktiv: eksisterende artikler vil OVERSKRIVES\n'
+      : 'ℹ️  Trygg modus: eksisterende artikler hoppes over (bruk --force for å overskrive)\n'
+  )
+  console.log(`📂 Innholdsmappe: ${CONTENT_DIR}\n`)
+
+  // 1. Create edition (deterministisk _id → gjenbrukes ved re-kjøring)
   console.log('📖 Oppretter utgave...')
-  const edition = await sanity.create({
+  const edition = await sanity.createIfNotExists({
+    _id: 'edition-2-2026',
     _type: 'edition',
     title: 'Rede nr 2 2026',
     number: 2,
@@ -432,6 +467,21 @@ async function main() {
   for (const article of ARTICLES) {
     console.log(`📝 ${article.title} (${article.type})`)
 
+    // Deterministisk _id slik at re-kjøring treffer samme dokument.
+    const articleId = `article-${article.slug}`
+
+    // Sanity er fasit: ikke rør artikler som allerede finnes (med mindre
+    // --force). Sjekkes FØR bildeopplasting for å unngå foreldreløse assets.
+    if (!FORCE) {
+      const exists = await sanity.fetch(`*[_id == $id][0]._id`, {
+        id: articleId,
+      })
+      if (exists) {
+        console.log(`   ⏭  Finnes i Sanity (${articleId}) — hopper over\n`)
+        continue
+      }
+    }
+
     // Read docx
     let fullText = ''
     for (const docx of article.docxFiles) {
@@ -451,7 +501,7 @@ async function main() {
     }
 
     // Find and upload images
-    let uploadedImages: Array<{
+    const uploadedImages: Array<{
       _type: 'image'
       asset: { _type: 'reference'; _ref: string }
     }> = []
@@ -515,7 +565,8 @@ async function main() {
     }
 
     // Build Sanity document
-    const doc: Record<string, unknown> = {
+    const doc: Record<string, unknown> & { _id: string; _type: string } = {
+      _id: articleId,
       _type: 'article',
       title: article.title,
       slug: { _type: 'slug', current: article.slug },
@@ -548,9 +599,12 @@ async function main() {
       doc.body = textToPortableText(fullText)
     }
 
-    // Create document
-    const created = await sanity.create(doc)
-    console.log(`   ✓ Opprettet: ${created._id}\n`)
+    // Create document. Trygg modus har allerede verifisert at den ikke finnes,
+    // så create() er nok; --force overskriver bevisst med createOrReplace.
+    const created = FORCE
+      ? await sanity.createOrReplace(doc)
+      : await sanity.create(doc)
+    console.log(`   ✓ ${FORCE ? 'Skrev (force)' : 'Opprettet'}: ${created._id}\n`)
   }
 
   console.log('✅ Import ferdig!')

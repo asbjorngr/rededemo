@@ -1,0 +1,176 @@
+# Flytteplan: Rede Digitalt → Superponni-organisasjon
+
+Fra privat/hobby-oppsett til organisasjonseid løsning klar for kundeovertakelse.
+
+**Sist oppdatert:** 2026-06-01
+**Strategi:** Flytt eksisterende tjenester (behold historikk/innhold). Ikke start friskt.
+
+---
+
+## 0. Dagens oppsett (kartlagt)
+
+| Tjeneste | Nå | Skal til |
+|----------|-----|----------|
+| GitHub | `github.com/asbjorngr/rededemo` (privat konto) | `github.com/Superponni/rede-digitalt` (org) |
+| Vercel | Prosjekt `rede-digitalt` i hobby-team `team_Vkuo7XJ…` | Superponni Vercel Team (Pro) |
+| Sanity | projectId `tqfezovu`, dataset `production` | **Samme projectId**, eid av Superponni-org |
+| Innhold (råmateriale) | `content/` lokalt på Mac (~1GB, gitignorert) | Delt Drive-mappe «Rede» |
+| Live URL | `*.vercel.app` | Eget domene (TBD) |
+| AI-pipeline | `scripts/import-edition.ts` + Anthropic-nøkkel (privat) | Forblir Superponnis engangsverktøy |
+
+**Miljøvariabler** (`.env.local`):
+- `NEXT_PUBLIC_SANITY_PROJECT_ID` — trengs i build + runtime (live site)
+- `NEXT_PUBLIC_SANITY_DATASET` — trengs i build + runtime
+- `SANITY_API_WRITE_TOKEN` — **kun** for importskriptet, ikke for live site
+- `ANTHROPIC_API_KEY` — **kun** for importskriptet, ikke for live site
+
+> Merk: Live site leser kun offentlig data via Sanity CDN. Av env-variablene over er det bare de to `NEXT_PUBLIC_SANITY_*` som faktisk må ligge i Vercel for at siden skal fungere.
+
+---
+
+## 1. KJERNESPØRSMÅL: Hva er «sannheten»?
+
+Dette er det viktigste å forstå før noe flyttes.
+
+### Regelen
+- **Drive-mappa = råkilde / arkiv.** Originale docx + bilder fra trykk. Dette er *input* til en **éngangs-seeding per artikkel** — ikke en levende kilde.
+- **Sanity = fasit for alt publisert/levende innhold.** Idet en artikkel finnes i Sanity, er Sanity sannheten. All redigering skjer i Sanity, aldri i mappa.
+- **Importen er IKKE en synk.** `scripts/import-edition.ts` kjører `sanity.create()` hver gang → den **lager nye dokumenter**, den oppdaterer ingenting. Kjøres den på nytt mot eksisterende innhold får du **duplikater**, ikke en oppdatering.
+
+### Hvorfor dette er kritisk akkurat nå
+Flyten har til nå vært enveis: `mappe → Sanity`. Idet kunde får redaktørsete og begynner å endre/godkjenne innhold i Sanity, kan vi **ikke** lenger pushe fra mappa uten å enten duplisere eller overskrive redaktørens arbeid. Etter go-live er retningen brutt: **Sanity er fasit, mappa er historikk.**
+
+### Tiltak for å gjøre dette trygt
+1. **Frys importflyten etter go-live.** Behandle `import-edition.ts` som arkivert verktøy. Det kjøres kun for å seede *helt nye* artikler/utgaver (f.eks. en framtidig Rede 3) som ennå ikke finnes i Sanity — aldri for å «oppdatere» eksisterende.
+2. **(Valgfri herding) Gjør importen idempotent.** Bytt `sanity.create` → deterministiske `_id` (f.eks. `article-${slug}`) og «hopp over hvis finnes» som default; `createOrReplace` kun bak et eksplisitt `--force`-flagg. Da kan skriptet aldri duplisere eller overskrive ved uhell. Gitt at det er et engangsverktøy er minimumskravet å *dokumentere* regelen i selve skriptet.
+3. **Dataset-backup som rutine.** Sanity har innebygd dokumenthistorikk, men ta i tillegg jevnlige eksporter:
+   ```bash
+   npx sanity dataset export production rede-backup-$(dato).tar.gz
+   ```
+   Særlig viktig rett før og rett etter overlevering.
+4. **Ikke slett Drive-originalene.** Når bilder er importert ligger de i Sanity CDN (fasit for det siden viser), men behold originalene i Drive som arkiv.
+
+---
+
+## 2. Rekkefølge og avhengigheter
+
+Rekkefølgen er bevisst. Sanity først (helt uavhengig, null risiko), så GitHub, så Vercel (må kobles til repoet på *ny* plassering), så domene, så innhold.
+
+```
+Fase 0  Forberedelse + backup        (ingen nedetid)
+Fase 1  Sanity → org                 (uavhengig, samme projectId)
+Fase 2  GitHub → org                 (transfer + evt. rename)
+Fase 3  Vercel → team               (transfer + reconnect Git)   ← mest skjøre steg
+Fase 4  Eget domene                  (krever DNS-tilgang)
+Fase 5  Innhold → Drive + regler
+Fase 6  Verifisering + opprydding
+```
+
+**Største risiko:** Koblingen Vercel ↔ GitHub. Når repoet flyttes til org må Vercel GitHub-appen installeres på Superponni-orgen og prosjektet kobles til repoet på nytt. Derfor: GitHub **før** Vercel.
+
+---
+
+## Fase 0 — Forberedelse (gjør før noe flyttes)
+
+- [ ] Bekreft at `main` er ren og pushet (`git status`, `git push`).
+- [ ] Sikkerhetskopier env-verdier et trygt sted (passordhvelv), ikke bare i `.env.local`.
+- [ ] Ta full Sanity-backup som sikkerhetsnett:
+      `npx sanity dataset export production rede-backup-pre-migrasjon.tar.gz`
+- [ ] Opprett de tre org-kontoene:
+  - [ ] **GitHub-organisasjon** «Superponni»
+  - [ ] **Vercel Team** «Superponni» (Pro-plan for flere medlemmer/roller/domene)
+  - [ ] **Sanity-organisasjon** «Superponni» (på sanity.io/manage)
+- [ ] Avklar med deg selv: hvilket **domene** og hvem styrer **DNS**? (blokkerer Fase 4)
+
+---
+
+## Fase 1 — Sanity til organisasjon (gjør først, tryggest)
+
+Flytting av et Sanity-prosjekt til en org **beholder samme `projectId` (`tqfezovu`) og dataset**. Ingen kode endres, ingen env endres, ingen re-import, ingen nedetid.
+
+- [ ] sanity.io/manage → prosjekt `tqfezovu` → Settings → **Transfer project to organization** → velg Superponni.
+- [ ] Verifiser at `projectId` fortsatt er `tqfezovu` og at live site + `/studio` fungerer (gjør de — ingenting i koden er rørt).
+- [ ] **Inviter kunde-medlemmer** med riktig rolle:
+  - Asbjørn / Superponni: **Administrator**
+  - TOBB-redaktør (lager/redigerer innhold): **Editor**
+  - TOBB-godkjenner (vedlikehold/godkjenning): **Editor** (eller egendefinert «publisher»-rolle på Growth-plan)
+- [ ] Flytt fakturering til org-eierskap hvis dere oppgraderer plan.
+- [ ] API-token `SANITY_API_WRITE_TOKEN` er per prosjekt og **overlever flyttingen** — ingen endring nødvendig.
+
+> **CORS:** Eksisterende origins følger med. Husk å legge til det nye domenet i Fase 4 (Settings → API → CORS origins), ellers vil `/studio` på nytt domene ikke fungere.
+
+---
+
+## Fase 2 — GitHub til organisasjon
+
+- [ ] GitHub: repo `asbjorngr/rededemo` → Settings → **Transfer ownership** → Superponni.
+      Transfer beholder all commit-historikk; gammel URL **redirigeres** automatisk.
+- [ ] (Anbefalt) Gi nytt navn `rede-digitalt` for konsistens (gamle lenker redirigeres fortsatt).
+- [ ] Sett Asbjørn som org-owner; legg til team/medlemmer etter behov.
+- [ ] Oppdater lokal remote:
+      ```bash
+      git remote set-url origin https://github.com/Superponni/rede-digitalt.git
+      git remote -v   # verifiser
+      ```
+
+---
+
+## Fase 3 — Vercel til team (mest skjøre steg)
+
+Gjøres **etter** GitHub-transfer, slik at vi kobler mot repoet på endelig plassering.
+
+- [ ] Opprett/bekreft Vercel Team «Superponni».
+- [ ] Vercel: prosjekt `rede-digitalt` → Settings → **Transfer project** → Superponni-team.
+      Env-variabler følger med prosjektet.
+- [ ] Installer **Vercel GitHub-app** på Superponni GitHub-org, gi tilgang til `rede-digitalt`-repoet.
+- [ ] Koble prosjektets Git-integrasjon til repoet på nytt (`Superponni/rede-digitalt`).
+- [ ] Verifiser at env-variabler finnes i nytt prosjekt — minst:
+  - `NEXT_PUBLIC_SANITY_PROJECT_ID=tqfezovu`
+  - `NEXT_PUBLIC_SANITY_DATASET=production`
+      (`SANITY_API_WRITE_TOKEN` / `ANTHROPIC_API_KEY` trengs **ikke** for live site — kun lokalt for import.)
+- [ ] Trigg en deploy (push en liten commit) og bekreft at den bygger og blir live.
+
+---
+
+## Fase 4 — Eget domene  *(krever avklaring + DNS-tilgang)*
+
+> **Åpent valg:** Hvilket domene? (`rede.tobb.no` / Superponni-subdomene / eget). Hvem styrer DNS?
+
+- [ ] Legg til domenet i Vercel-prosjektet (Settings → Domains).
+- [ ] Sett opp DNS hos domeneeier (CNAME/A iht. Vercels instruks).
+- [ ] Vent på SSL/verifisering.
+- [ ] **Legg domenet til i Sanity CORS** (Settings → API → CORS origins) — ellers virker ikke `/studio` + preview på nytt domene.
+- [ ] Oppdater evt. `metadataBase`/OG-URL i koden hvis domenet er hardkodet noe sted.
+
+---
+
+## Fase 5 — Innhold til Drive + regler
+
+`content/` er gitignorert, så **live site er ikke avhengig av mappa** — den brukes bare av importskriptet.
+
+- [ ] Opprett delt Drive-mappe «Rede» (delt drive, ikke privat konto).
+- [ ] Flytt `content/`-materialet (docx + bilder + designfiler) dit.
+- [ ] Hvis importskriptet skal kunne kjøres igjen for ny utgave: enten
+  - hold en lokal synket kopi (Google Drive desktop) og pek `CONTENT_DIR` dit, eller
+  - gjør `CONTENT_DIR` til et argument/env-variabel i stedet for hardkodet sti.
+- [ ] Dokumentér i Drive-mappa: «Dette er råarkiv. Fasit for publisert innhold er Sanity.»
+
+---
+
+## Fase 6 — Verifisering og opprydding
+
+- [ ] Live site fungerer på nytt domene (forside + en scrollytelling + en standard-artikkel).
+- [ ] `/studio` fungerer, kunde-redaktør kan logge inn og redigere.
+- [ ] Ny deploy trigges automatisk fra `Superponni/rede-digitalt`.
+- [ ] Sanity-innhold uendret (samme projectId, ingen duplikater).
+- [ ] **Behold de gamle private repo/Vercel-prosjektene i ~1 uke** som fallback — ikke slett før alt er verifisert.
+- [ ] **Rotér hemmeligheter** ved overlevering (god praksis): ny `SANITY_API_WRITE_TOKEN`; Anthropic-nøkkel forblir Superponnis og deles ikke.
+- [ ] Oppdater `CLAUDE.md` + docs med nye URLer, org-navn og «Sanity = fasit»-policyen.
+
+---
+
+## Åpne punkter (trenger avklaring fra Asbjørn)
+
+1. **Domene:** hvilket, og hvem styrer DNS?
+2. **Kunde-medlemmer i Sanity:** navn/e-post + om «godkjenner» trenger egen rolle utover Editor.
+3. **Planvalg/kostnad:** Vercel Pro + evt. Sanity Growth (for flere medlemmer/roller/SSO).
