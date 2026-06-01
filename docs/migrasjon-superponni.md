@@ -175,15 +175,16 @@ Gjort **etter** GitHub-transfer, slik at vi koblet mot repoet på endelig plasse
 - `REDE_CONTENT_DIR="…/REDE/Rede 2026" npx tsx scripts/import-edition.ts --edition=2-2026` — kjør.
 - On-demand: bare docx + maks 8 bilder/artikkel materialiseres fra Drive, ikke hele 1,7 GB.
 
-### Gjenstår
-- [ ] **Redaksjonelt valg:** Grønn Plattform-docx. Manifestet peker default på journalistens
-      `Vendom_rede2_26.docx` (full, nyere versjon, dekker Vendom+DIPLOM+TOBB). Vår lokale var et
-      eldre utkast (571 vs 621 ord). Live Sanity er upåvirket (import hopper over eksisterende).
-      Bytt til override i repoet hvis det gamle utkastet skal bevares.
-- [ ] Flytt `rede-backup-pre-migrasjon.tar.gz` (390 MB) til Drive «REDE» (f.eks. `backups/`).
-- [ ] Legg `LESMEG.txt` i Drive-mappa: «Råarkiv for Rede. Fasit for publisert innhold = Sanity.
-      Importskriptet er engangs-seeding, ikke synk — se docs/migrasjon-superponni.md §1.»
-- [ ] (Valgfritt) Fjern lokal `content/`-kopi (1,7 GB) **når** Drive-import er kjørt og verifisert.
+### Status (2026-06-01)
+- [x] **Redaksjonelt valg gjort:** Grønn Plattform bruker journalistens nyere
+      `Vendom_rede2_26.docx` (dekker Vendom+DIPLOM+TOBB). Oppdatert i Sanity via målrettet
+      `--force --only=gronn-plattform` lest fra Drive — kun denne artikkelen rørt. Dette var
+      også første ekte Drive-sourcede import, så pipelinen er verifisert ende-til-ende.
+- [x] Flyttet `rede-backup-pre-migrasjon.tar.gz` (390 MB) → `REDE/backups/` (borte lokalt).
+- [x] Lagt `LESMEG.txt` i `REDE/Rede 2026/` (forklarer: råarkiv, Sanity = fasit, engangs-import,
+      vi leser kun — formulert for redaksjon/journalist).
+- [ ] (Valgfritt) Fjern lokal `content/`-kopi (1,7 GB) når du er trygg. Én Drive-import er nå
+      verifisert; full re-import fra Drive kan kjøres for full trygghet før sletting.
       `audio-tekster/` er generert output (regenereres via `scripts/export-article-text.mjs`);
       `raw/` er tom.
 - [ ] **Framtidig utgave:** journalist laster opp `Rede 3 2026/` i Drive → lag
