@@ -141,16 +141,26 @@ Gjort **etter** GitHub-transfer, slik at vi koblet mot repoet på endelig plasse
 
 ---
 
-## Fase 5 — Innhold til Drive + regler
+## Fase 5 — Innhold til Drive + regler  ← NESTE FASE
 
-`content/` er gitignorert, så **live site er ikke avhengig av mappa** — den brukes bare av importskriptet.
+`content/` er gitignorert, så **live site er ALDRI avhengig av mappa** — den brukes kun av
+`scripts/import-edition.ts` (engangs-seeding). Å flytte mappa kan derfor ikke ta ned siden.
 
-- [ ] Opprett delt Drive-mappe «Rede» (delt drive, ikke privat konto).
-- [ ] Flytt `content/`-materialet (docx + bilder + designfiler) dit.
-- [ ] Hvis importskriptet skal kunne kjøres igjen for ny utgave: enten
-  - hold en lokal synket kopi (Google Drive desktop) og pek `CONTENT_DIR` dit, eller
-  - gjør `CONTENT_DIR` til et argument/env-variabel i stedet for hardkodet sti.
-- [ ] Dokumentér i Drive-mappa: «Dette er råarkiv. Fasit for publisert innhold er Sanity.»
+**Kontekst for ny økt:** Mappa ligger på `~/Documents/Projects/rede-digitalt/content/`
+(~1GB: `Rede 2 2026/`, `audio-tekster/`, `raw/`). Backup-fila
+`rede-backup-pre-migrasjon.tar.gz` (390 MB) ligger i `~/Documents/Projects/`.
+`CONTENT_DIR` i importskriptet er allerede gjort konfigurerbar via `--content=` / `REDE_CONTENT_DIR`.
+
+Anbefalt framgangsmåte:
+- [ ] Opprett **delt Drive** «Rede» (shared drive på Superponni-konto, ikke privat «My Drive»).
+- [ ] Installer **Google Drive for Desktop** hvis ikke alt på plass (gir lokal sti til shared drive).
+- [ ] Flytt `content/`-materialet + `rede-backup-pre-migrasjon.tar.gz` til Drive «Rede».
+- [ ] Beslutning om import-tilgang til mappa (velg én):
+  - **(a) Enkel:** kjør import ved behov med `REDE_CONTENT_DIR="/Drive-sti/Rede" npx tsx scripts/import-edition.ts`
+  - **(b) Sømløs:** symlink `content/` → Drive-stien, så virker default-stien som før
+- [ ] Legg en `LESMEG.txt` i Drive-mappa: «Råarkiv for Rede. Fasit for publisert innhold = Sanity.
+      Importskriptet er engangs-seeding, ikke synk — se docs/migrasjon-superponni.md §1.»
+- [ ] (Valgfritt) Fjern den lokale `content/`-kopien når Drive-versjonen er bekreftet, for å frigjøre ~1GB.
 
 ---
 
